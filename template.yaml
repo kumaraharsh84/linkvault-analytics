@@ -1,0 +1,310 @@
+# This template creates the full serverless backend for LinkVault.
+# It defines the API, Lambda functions, DynamoDB tables, and shared settings.
+# It also wires IAM permissions and output values for deployment.
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Serverless URL shortener with analytics and JWT authentication using AWS SAM.
+
+# This parameter stores the secret used to sign login tokens.
+Parameters:
+  JwtSecret:
+    Type: String
+    NoEcho: true
+    Description: Secret used to sign JWT access tokens.
+
+# These global settings apply the same runtime and environment to every Lambda.
+Globals:
+  Function:
+    Runtime: python3.11
+    Timeout: 30
+    MemorySize: 256
+    Environment:
+      Variables:
+        USERS_TABLE: !Ref UsersTable
+        LINKS_TABLE: !Ref LinksTable
+        CLICKS_TABLE: !Ref ClicksTable
+        JWT_SECRET: !Ref JwtSecret
+
+# These resources create the API, data tables, and Lambda handlers.
+Resources:
+  # This API Gateway resource exposes every backend route to the frontend.
+  UrlShortenerApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowOrigin: "'*'"
+        AllowHeaders: "'Content-Type,Authorization'"
+        AllowMethods: "'GET,POST,PATCH,DELETE,OPTIONS'"
+
+  # This table stores user accounts and supports lookup by email.
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: email
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: email-index
+          KeySchema:
+            - AttributeName: email
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+
+  # This table stores saved links and uses TTL to remove old expired records.
+  LinksTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      TimeToLiveSpecification:
+        AttributeName: expiresAt
+        Enabled: true
+      AttributeDefinitions:
+        - AttributeName: code
+          AttributeType: S
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: code
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: userId-index
+          KeySchema:
+            - AttributeName: userId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+
+  # This table stores every click event captured during redirects.
+  ClicksTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: clickId
+          AttributeType: S
+        - AttributeName: code
+          AttributeType: S
+      KeySchema:
+        - AttributeName: clickId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: code-index
+          KeySchema:
+            - AttributeName: code
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+
+  # This Lambda handles user registration and login.
+  AuthFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/auth_handler/
+      Handler: app.lambda_handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LinksTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ClicksTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:Query
+                - dynamodb:Scan
+                - dynamodb:TransactWriteItems
+              Resource:
+                - !GetAtt UsersTable.Arn
+                - !Sub "${UsersTable.Arn}/index/*"
+                - !GetAtt LinksTable.Arn
+                - !Sub "${LinksTable.Arn}/index/*"
+                - !GetAtt ClicksTable.Arn
+                - !Sub "${ClicksTable.Arn}/index/*"
+      Events:
+        RegisterApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref UrlShortenerApi
+            Path: /auth/register
+            Method: post
+        LoginApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref UrlShortenerApi
+            Path: /auth/login
+            Method: post
+
+  # This Lambda creates short links for authenticated users.
+  ShortenFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/shorten_handler/
+      Handler: app.lambda_handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LinksTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ClicksTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:Query
+                - dynamodb:Scan
+                - dynamodb:TransactWriteItems
+              Resource:
+                - !GetAtt UsersTable.Arn
+                - !Sub "${UsersTable.Arn}/index/*"
+                - !GetAtt LinksTable.Arn
+                - !Sub "${LinksTable.Arn}/index/*"
+                - !GetAtt ClicksTable.Arn
+                - !Sub "${ClicksTable.Arn}/index/*"
+      Events:
+        ShortenApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref UrlShortenerApi
+            Path: /shorten
+            Method: post
+
+  # This Lambda redirects public short links and logs click data.
+  RedirectFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/redirect_handler/
+      Handler: app.lambda_handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LinksTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ClicksTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:Query
+                - dynamodb:Scan
+                - dynamodb:TransactWriteItems
+              Resource:
+                - !GetAtt UsersTable.Arn
+                - !Sub "${UsersTable.Arn}/index/*"
+                - !GetAtt LinksTable.Arn
+                - !Sub "${LinksTable.Arn}/index/*"
+                - !GetAtt ClicksTable.Arn
+                - !Sub "${ClicksTable.Arn}/index/*"
+      Events:
+        RedirectApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref UrlShortenerApi
+            Path: /s/{code}
+            Method: get
+
+  # This Lambda returns analytics for a link owned by the current user.
+  AnalyticsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/analytics_handler/
+      Handler: app.lambda_handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LinksTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ClicksTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:Query
+                - dynamodb:Scan
+                - dynamodb:TransactWriteItems
+              Resource:
+                - !GetAtt UsersTable.Arn
+                - !Sub "${UsersTable.Arn}/index/*"
+                - !GetAtt LinksTable.Arn
+                - !Sub "${LinksTable.Arn}/index/*"
+                - !GetAtt ClicksTable.Arn
+                - !Sub "${ClicksTable.Arn}/index/*"
+      Events:
+        AnalyticsApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref UrlShortenerApi
+            Path: /analytics/{code}
+            Method: get
+
+  # This Lambda lists, renames, restores, and deletes saved links.
+  LinksFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/links_handler/
+      Handler: app.lambda_handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LinksTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ClicksTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:Query
+                - dynamodb:Scan
+                - dynamodb:TransactWriteItems
+              Resource:
+                - !GetAtt UsersTable.Arn
+                - !Sub "${UsersTable.Arn}/index/*"
+                - !GetAtt LinksTable.Arn
+                - !Sub "${LinksTable.Arn}/index/*"
+                - !GetAtt ClicksTable.Arn
+                - !Sub "${ClicksTable.Arn}/index/*"
+      Events:
+        ListLinksApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref UrlShortenerApi
+            Path: /links
+            Method: get
+        DeleteLinkApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref UrlShortenerApi
+            Path: /links/{code}
+            Method: delete
+        RenameLinkApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref UrlShortenerApi
+            Path: /links/{code}
+            Method: patch
+        RestoreLinkApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref UrlShortenerApi
+            Path: /links/{code}/restore
+            Method: post
+
+# These outputs return useful deployment values after the stack is created.
+Outputs:
+  ApiBaseUrl:
+    Description: Base URL for the deployed API Gateway stage.
+    Value: !Sub "https://${UrlShortenerApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
+  UsersTableName:
+    Value: !Ref UsersTable
+  LinksTableName:
+    Value: !Ref LinksTable
+  ClicksTableName:
+    Value: !Ref ClicksTable
