@@ -7,9 +7,10 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-    :root{--nav-bg:#0f1117;--nav-border:#1f2937;--bg:#f9fafb;--bg-soft:#f3f4f6;--card:#ffffff;--text:#111827;--body:#374151;--muted:#6b7280;--border:#e5e7eb;--accent:#4f46e5;--accent-hover:#4338ca;--accent-soft:#eef2ff;--success:#10b981;--success-bg:#d1fae5;--success-text:#065f46;--danger:#ef4444;--danger-bg:#fee2e2;--danger-text:#991b1b;--warning:#f59e0b;--warning-bg:#fef3c7;--warning-text:#92400e;--shadow:0 1px 3px rgba(0,0,0,.08)}
+    :root{--nav-bg:#0f1117;--nav-border:#1f2937;--bg:#f9fafb;--bg-soft:#f3f4f6;--card:#ffffff;--text:#111827;--body:#374151;--muted:#6b7280;--border:#e5e7eb;--accent:#4f46e5;--accent-hover:#4338ca;--accent-soft:#eef2ff;--success:#10b981;--success-bg:#d1fae5;--success-text:#065f46;--danger:#ef4444;--danger-bg:#fee2e2;--danger-text:#991b1b;--warning:#f59e0b;--warning-bg:#fef3c7;--warning-text:#92400e;--shadow:0 1px 3px rgba(0,0,0,.08);--overlay:rgba(17,24,39,.42);--tooltip-bg:#111827;--tooltip-text:#f9fafb;--chart-grid:rgba(17,24,39,.08);--chart-tick:#64748b;--chart-label:#475569;--chart-center:#0f172a;--chart-subtle:#94a3b8;--chart-line:#6366f1;--chart-line-fill-start:rgba(99,102,241,.3);--chart-line-fill-end:rgba(99,102,241,0);--chart-device-1:#6366f1;--chart-device-2:#8b5cf6;--chart-device-3:#a78bfa;--chart-bar-start:#6366f1;--chart-bar-end:#8b5cf6}
+    html[data-theme="dark"]{--nav-bg:#030712;--nav-border:#111827;--bg:#030712;--bg-soft:#111827;--card:#0f172a;--text:#f8fafc;--body:#cbd5e1;--muted:#94a3b8;--border:#1e293b;--accent:#818cf8;--accent-hover:#6366f1;--accent-soft:#1e1b4b;--success:#34d399;--success-bg:#052e24;--success-text:#a7f3d0;--danger:#f87171;--danger-bg:#3f1519;--danger-text:#fecaca;--warning:#fbbf24;--warning-bg:#3b2a08;--warning-text:#fde68a;--shadow:0 16px 40px rgba(0,0,0,.28);--overlay:rgba(2,6,23,.72);--tooltip-bg:#e2e8f0;--tooltip-text:#0f172a;--chart-grid:rgba(148,163,184,.14);--chart-tick:#94a3b8;--chart-label:#cbd5e1;--chart-center:#f8fafc;--chart-subtle:#94a3b8;--chart-line:#818cf8;--chart-line-fill-start:rgba(129,140,248,.28);--chart-line-fill-end:rgba(129,140,248,0);--chart-device-1:#818cf8;--chart-device-2:#38bdf8;--chart-device-3:#34d399;--chart-bar-start:#818cf8;--chart-bar-end:#38bdf8}
     *{box-sizing:border-box;margin:0;padding:0}
-    body{min-height:100vh;overflow-x:hidden;background:var(--bg);color:var(--body);font-family:'Inter',sans-serif;position:relative}
+    body{min-height:100vh;overflow-x:hidden;background:var(--bg);color:var(--body);font-family:'Inter',sans-serif;position:relative;transition:background-color .2s ease,color .2s ease}
     .blob{display:none}
     @keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes spin{to{transform:rotate(360deg)}}@keyframes pulse{0%,80%,100%{transform:scale(.5);opacity:.4}40%{transform:scale(1);opacity:1}}
     .glass{background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow)}
@@ -37,7 +38,7 @@
     .btn:hover{transform:translateY(-1px)}
     .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
     .btn-primary:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
-    .btn-outline,.btn-soft{background:#fff;border-color:var(--border);color:var(--body)}
+    .btn-outline,.btn-soft{background:var(--card);border-color:var(--border);color:var(--body)}
     .btn-outline:hover,.btn-soft:hover{background:var(--bg-soft)}
     .btn-danger{background:var(--danger);border-color:var(--danger);color:#fff}
     .btn-danger:hover{background:#dc2626;border-color:#dc2626}
@@ -58,10 +59,13 @@
     .tab.active,.drawer-btn.active{background:rgba(79,70,229,.16);color:#fff}
     .nav-right{display:flex;align-items:center;gap:12px}
     .hello{font-size:.9rem;color:#9ca3af}
+    .theme-toggle{min-height:36px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;font:600 .82rem 'Inter',sans-serif;cursor:pointer}
+    .theme-toggle:hover{background:rgba(255,255,255,.12)}
     .burger{display:none;width:40px;height:40px;border-radius:8px;background:#111827;border:1px solid #374151;color:#fff}
     .drawer{display:none;position:sticky;top:56px;z-index:90;padding:12px 16px;background:var(--nav-bg);border-bottom:1px solid var(--nav-border)}
     .drawer.show{display:block}
     .drawer .glass{padding:12px;display:grid;gap:8px;background:#111827;border-color:#1f2937;box-shadow:none}
+    .drawer .theme-toggle{justify-content:center}
     .content{max-width:1200px;margin:0 auto;padding:32px 24px 56px}
     #shortenPage{max-width:760px}
     .hero{display:grid;gap:8px;margin-bottom:24px}
@@ -89,19 +93,19 @@
     .search{width:100%;max-width:420px}
     .filter-pills{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
     .filter-stack{display:grid;gap:12px;justify-items:end}
-    .filter-group{display:flex;gap:8px;flex-wrap:wrap;padding:4px;background:#fff;border:1px solid var(--border);border-radius:10px;max-width:100%}
-    .pill{min-height:36px;padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:#fff;color:var(--muted);font:600 .82rem 'Inter',sans-serif;cursor:pointer}
+    .filter-group{display:flex;gap:8px;flex-wrap:wrap;padding:4px;background:var(--card);border:1px solid var(--border);border-radius:10px;max-width:100%}
+    .pill{min-height:36px;padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:var(--card);color:var(--muted);font:600 .82rem 'Inter',sans-serif;cursor:pointer}
     .filter-group .pill{border-color:transparent}
     .pill.active{background:var(--accent-soft);color:var(--accent);border-color:#c7d2fe}
-    .table-wrap{overflow:hidden;background:#fff}
+    .table-wrap{overflow:hidden;background:var(--card)}
     .table-head,.row{display:grid;grid-template-columns:1.15fr 2.1fr .9fr 1.2fr 1.1fr;gap:16px;align-items:center;padding:18px 24px}
     .table-head{background:var(--bg);border-bottom:1px solid var(--border);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
-    .row{border-bottom:1px solid #f3f4f6;transition:background .15s ease}
+    .row{border-bottom:1px solid var(--border);transition:background .15s ease}
     .row:hover{background:var(--bg)}
     .row:last-child{border-bottom:0}
     .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;color:var(--accent);font-weight:700}
     .row-actions,.code-block{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-    .icon{width:40px;height:40px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;background:#fff;border:1px solid var(--border);color:var(--body)}
+    .icon{width:40px;height:40px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;background:var(--card);border:1px solid var(--border);color:var(--body)}
     .icon:hover{background:var(--bg-soft)}
     .icon.red{color:var(--danger)}
     .icon.indigo{color:var(--accent)}
@@ -115,7 +119,7 @@
     .empty{display:none;padding:48px 24px;text-align:center;color:var(--muted)}
     .empty.show{display:block}
     .empty .emoji{font-size:3rem;margin-bottom:12px}
-    .overlay{display:none;position:fixed;inset:0;z-index:190;align-items:center;justify-content:center;padding:24px;background:rgba(17,24,39,.42)}
+    .overlay{display:none;position:fixed;inset:0;z-index:190;align-items:center;justify-content:center;padding:24px;background:var(--overlay)}
     .overlay.show{display:flex}
     .modal{width:100%;max-width:420px;padding:24px}
     .modal h3{color:var(--text);font-size:1.1rem}
@@ -132,14 +136,14 @@
     .chart-title{margin-bottom:16px;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
     canvas{width:100%!important;height:260px!important}
     .recent .table-head,.recent .row{grid-template-columns:1.15fr 1fr 1fr 1fr 1.2fr}
-    .tooltip{position:absolute;z-index:150;max-width:280px;padding:8px 10px;border-radius:8px;background:#111827;color:#f9fafb;border:1px solid #1f2937;font-size:.75rem;opacity:0;pointer-events:none;transform:translateY(8px);transition:.15s ease}
+    .tooltip{position:absolute;z-index:150;max-width:280px;padding:8px 10px;border-radius:8px;background:var(--tooltip-bg);color:var(--tooltip-text);border:1px solid var(--border);font-size:.75rem;opacity:0;pointer-events:none;transform:translateY(8px);transition:.15s ease}
     .tooltip.show{opacity:1;transform:translateY(0)}
     .toasts{position:fixed;top:72px;right:16px;z-index:180;max-width:360px;display:grid;gap:12px}
-    .toast{display:flex;gap:10px;align-items:flex-start;padding:14px 16px;border-radius:12px;background:#fff;animation:slideUp .2s ease;border:1px solid var(--border);box-shadow:var(--shadow)}
+    .toast{display:flex;gap:10px;align-items:flex-start;padding:14px 16px;border-radius:12px;background:var(--card);animation:slideUp .2s ease;border:1px solid var(--border);box-shadow:var(--shadow)}
     .toast.success{border-color:#a7f3d0;background:#f0fdf4}
     .toast.error{border-color:#fecaca;background:#fef2f2}
     .toast.info{border-color:#c7d2fe;background:#eef2ff}
-    .loading{display:none;position:fixed;inset:0;z-index:200;align-items:center;justify-content:center;background:rgba(249,250,251,.82)}
+    .loading{display:none;position:fixed;inset:0;z-index:200;align-items:center;justify-content:center;background:color-mix(in srgb, var(--bg) 82%, transparent)}
     .loading.show{display:flex}
     .spinner{width:40px;height:40px;border-radius:50%;border:3px solid #dbeafe;border-top-color:var(--accent);animation:spin .8s linear infinite}
     .dots{display:inline-flex;gap:5px}.dots i{display:block;width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 1s ease-in-out infinite}.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
@@ -162,6 +166,7 @@
         <button class="tab" data-page="analyticsPage">Analytics</button>
       </div>
       <div class="nav-right">
+        <button id="themeToggle" class="theme-toggle" type="button">🌙 Dark</button>
         <div id="hello" class="hello">Hello, User 👋</div>
         <button id="logoutBtn" class="btn btn-outline logout-desktop">Logout</button>
         <button id="burgerBtn" class="burger">☰</button>
@@ -169,6 +174,7 @@
     </nav>
     <div id="drawer" class="drawer">
       <div class="glass">
+        <button id="themeToggleMobile" class="theme-toggle" type="button">🌙 Dark</button>
         <button class="drawer-btn" data-page="shortenPage">Shorten</button>
         <button class="drawer-btn" data-page="linksPage">My Links</button>
         <button class="drawer-btn" data-page="analyticsPage">Analytics</button>
@@ -308,6 +314,7 @@
     // It also sends requests to the deployed API and updates the UI state.
     const API_BASE = "https://n5wzw93cd3.execute-api.ap-south-1.amazonaws.com/Prod";
 
+    const THEME_KEY = "linkvault-theme";
     const RESTORE_GRACE_DAYS = 7;
     const state = { links: [], filtered: [], current: "loginPage", analyticsCode: null, deleteCode: null, renameCode: null, charts: {}, drawer: false, range: "all", expiryFilter: "all", expirySort: "newest", createExpiry: "7" };
     const $ = (id) => document.getElementById(id);
@@ -318,11 +325,11 @@
       mostClicked: $("mostClicked"), linksList: $("linksList"), linksEmpty: $("linksEmpty"), renameOverlay: $("renameOverlay"), deleteOverlay: $("deleteOverlay"),
       analyticsCode: $("analyticsCode"), analyticsLong: $("analyticsLong"), analyticsClicks: $("analyticsClicks"),
       analyticsCreatedAt: $("analyticsCreatedAt"), analyticsExpiresAt: $("analyticsExpiresAt"), recentList: $("recentList"), recentEmpty: $("recentEmpty"),
-      renameTitle: $("renameTitle")
+      renameTitle: $("renameTitle"), themeToggle: $("themeToggle"), themeToggleMobile: $("themeToggleMobile")
     };
 
     // This chart plugin draws the total click count inside the doughnut chart.
-    const centerTextPlugin = { id: "centerText", afterDraw(chart, args, options) { if (!options || !options.text) return; const { ctx, chartArea } = chart; ctx.save(); ctx.fillStyle = "#f1f5f9"; ctx.font = "700 24px Sora"; ctx.textAlign = "center"; ctx.fillText(options.text, (chartArea.left + chartArea.right) / 2, (chartArea.top + chartArea.bottom) / 2 - 6); ctx.fillStyle = "#94a3b8"; ctx.font = "500 12px Sora"; ctx.fillText("total clicks", (chartArea.left + chartArea.right) / 2, (chartArea.top + chartArea.bottom) / 2 + 16); ctx.restore(); } };
+    const centerTextPlugin = { id: "centerText", afterDraw(chart, args, options) { if (!options || !options.text) return; const { ctx, chartArea } = chart; ctx.save(); ctx.fillStyle = themeValue("--chart-center"); ctx.font = "700 24px Inter"; ctx.textAlign = "center"; ctx.fillText(options.text, (chartArea.left + chartArea.right) / 2, (chartArea.top + chartArea.bottom) / 2 - 6); ctx.fillStyle = themeValue("--chart-subtle"); ctx.font = "500 12px Inter"; ctx.fillText("total clicks", (chartArea.left + chartArea.right) / 2, (chartArea.top + chartArea.bottom) / 2 + 16); ctx.restore(); } };
     Chart.register(centerTextPlugin);
 
     // This helper safely escapes dynamic strings before rendering them inside HTML.
@@ -345,6 +352,36 @@
 
     // This helper clears any auth card message before a new request starts.
     function clearInline(target) { target.className = "inline-msg"; target.textContent = ""; }
+
+    // This helper reads theme-aware CSS variables for charts and chrome updates.
+    function themeValue(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+    // This helper returns the current stored theme or falls back to the OS preference.
+    function preferredTheme() {
+      const saved = localStorage.getItem(THEME_KEY);
+      if (saved === "light" || saved === "dark") return saved;
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+
+    // This helper refreshes the theme toggle labels in desktop and mobile navigation.
+    function syncThemeToggle() {
+      const dark = document.documentElement.dataset.theme === "dark";
+      const label = dark ? "☀️ Light" : "🌙 Dark";
+      els.themeToggle.textContent = label;
+      els.themeToggleMobile.textContent = label;
+    }
+
+    // This helper applies the theme and redraws analytics charts when colors change.
+    function applyTheme(theme, persist = true) {
+      document.documentElement.dataset.theme = theme;
+      if (persist) localStorage.setItem(THEME_KEY, theme);
+      syncThemeToggle();
+      if (state.current === "analyticsPage" && state.analyticsCode) loadAnalytics(state.analyticsCode);
+    }
+
+    // This helper flips between the light and dark theme variants.
+    function toggleTheme() { applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark"); }
+
     // This helper formats timestamps into a readable local string.
     function formatDate(value) { if (!value) return "Never"; const date = new Date(value); if (Number.isNaN(date.getTime())) return String(value); return date.toLocaleString(); }
 
@@ -539,26 +576,32 @@
       destroyCharts();
       const lineCtx = $("lineChart").getContext("2d");
       const lineGrad = lineCtx.createLinearGradient(0, 0, 0, 280);
-      lineGrad.addColorStop(0, "rgba(99,102,241,.3)");
-      lineGrad.addColorStop(1, "rgba(99,102,241,0)");
+      lineGrad.addColorStop(0, themeValue("--chart-line-fill-start"));
+      lineGrad.addColorStop(1, themeValue("--chart-line-fill-end"));
       const byDate = analytics.byDate || {};
       const labels = Object.keys(byDate).sort().slice(-14);
-      state.charts.line = new Chart(lineCtx, { type: "line", data: { labels, datasets: [{ data: labels.map((d) => byDate[d] || 0), borderColor: "#6366f1", backgroundColor: lineGrad, fill: true, tension: .4, pointRadius: 4, pointHoverRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,.05)" } }, y: { ticks: { color: "#94a3b8", precision: 0 }, grid: { color: "rgba(255,255,255,.05)" } } } } });
+      state.charts.line = new Chart(lineCtx, { type: "line", data: { labels, datasets: [{ data: labels.map((d) => byDate[d] || 0), borderColor: themeValue("--chart-line"), backgroundColor: lineGrad, fill: true, tension: .4, pointRadius: 4, pointHoverRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: themeValue("--chart-tick") }, grid: { color: themeValue("--chart-grid") } }, y: { ticks: { color: themeValue("--chart-tick"), precision: 0 }, grid: { color: themeValue("--chart-grid") } } } } });
       const byDevice = analytics.byDevice || {};
-      state.charts.device = new Chart($("deviceChart").getContext("2d"), { type: "doughnut", data: { labels: ["Desktop", "Mobile", "Tablet"], datasets: [{ data: [byDevice.Desktop || 0, byDevice.Mobile || 0, byDevice.Tablet || 0], backgroundColor: ["#6366f1", "#8b5cf6", "#a78bfa"], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: "68%", plugins: { legend: { position: "bottom", labels: { color: "#cbd5e1" } }, centerText: { text: String(analytics.totalClicks || 0) } } } });
+      state.charts.device = new Chart($("deviceChart").getContext("2d"), { type: "doughnut", data: { labels: ["Desktop", "Mobile", "Tablet"], datasets: [{ data: [byDevice.Desktop || 0, byDevice.Mobile || 0, byDevice.Tablet || 0], backgroundColor: [themeValue("--chart-device-1"), themeValue("--chart-device-2"), themeValue("--chart-device-3")], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: "68%", plugins: { legend: { position: "bottom", labels: { color: themeValue("--chart-label") } }, centerText: { text: String(analytics.totalClicks || 0) } } } });
       const byCountry = Object.entries(analytics.byCountry || {}).sort((a, b) => b[1] - a[1]).slice(0, 5);
       const cCtx = $("countryChart").getContext("2d");
       const barGrad = cCtx.createLinearGradient(0, 0, 360, 0);
-      barGrad.addColorStop(0, "#6366f1");
-      barGrad.addColorStop(1, "#8b5cf6");
-      state.charts.country = new Chart(cCtx, { type: "bar", data: { labels: byCountry.map((entry) => entry[0]), datasets: [{ data: byCountry.map((entry) => entry[1]), backgroundColor: barGrad, borderRadius: 12 }] }, options: { indexAxis: "y", responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: "#94a3b8", precision: 0 }, grid: { color: "rgba(255,255,255,.05)" } }, y: { ticks: { color: "#cbd5e1" }, grid: { display: false } } } } });
+      barGrad.addColorStop(0, themeValue("--chart-bar-start"));
+      barGrad.addColorStop(1, themeValue("--chart-bar-end"));
+      state.charts.country = new Chart(cCtx, { type: "bar", data: { labels: byCountry.map((entry) => entry[0]), datasets: [{ data: byCountry.map((entry) => entry[1]), backgroundColor: barGrad, borderRadius: 12 }] }, options: { indexAxis: "y", responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: themeValue("--chart-tick"), precision: 0 }, grid: { color: themeValue("--chart-grid") } }, y: { ticks: { color: themeValue("--chart-label") }, grid: { display: false } } } } });
     }
 
     // This helper loads analytics for a selected link and opens the analytics page.
     async function loadAnalytics(code) { state.analyticsCode = code; setLoading(true); try { const data = await api("/analytics/" + encodeURIComponent(code), { headers: authHeaders() }); const link = state.links.find((item) => item.code === code); els.analyticsCode.textContent = data.code || "-"; els.analyticsLong.textContent = data.longUrl || "-"; els.analyticsClicks.textContent = String(data.totalClicks || 0); els.analyticsCreatedAt.textContent = data.createdAt ? new Date(data.createdAt).toLocaleDateString() : "-"; els.analyticsExpiresAt.textContent = link ? formatExpiry(link.expiresAt) : "Unknown"; renderCharts(data); renderRecent(data.clicks || []); showPage("analyticsPage"); } catch (error) { if (error.message !== "Unauthorized") toast("error", error.message); } finally { setLoading(false); } }
 
     // This helper restores the correct initial screen when the SPA first loads.
-    async function boot() { localStorage.removeItem("token"); localStorage.removeItem("userName"); refreshChrome(); if (sessionToken()) { showPage("shortenPage"); await loadLinks(); } else { showPage("loginPage"); } }
+    async function boot() {
+      localStorage.removeItem("token");
+      localStorage.removeItem("userName");
+      applyTheme(preferredTheme(), false);
+      refreshChrome();
+      if (sessionToken()) { showPage("shortenPage"); await loadLinks(); } else { showPage("loginPage"); }
+    }
 
     // This helper wires up every interactive element across auth, lists, and analytics.
     function bind() {
@@ -568,6 +611,8 @@
       $("registerBtn").addEventListener("click", register);
       $("logoutBtn").addEventListener("click", logout);
       $("logoutBtnMobile").addEventListener("click", logout);
+      els.themeToggle.addEventListener("click", toggleTheme);
+      els.themeToggleMobile.addEventListener("click", toggleTheme);
       $("burgerBtn").addEventListener("click", () => toggleDrawer());
       $("advancedBtn").addEventListener("click", () => setAdvancedPanel(!els.advancedPanel.classList.contains("show")));
       $("shortenBtn").addEventListener("click", shorten);
@@ -591,6 +636,10 @@
       els.linksList.addEventListener("mouseover", (event) => { const target = event.target.closest("[data-tip]"); if (!target) return; els.tooltip.textContent = target.dataset.tip; els.tooltip.classList.add("show"); });
       els.linksList.addEventListener("mousemove", (event) => { if (!els.tooltip.classList.contains("show")) return; els.tooltip.style.left = event.pageX + 12 + "px"; els.tooltip.style.top = event.pageY - 18 + "px"; });
       els.linksList.addEventListener("mouseleave", () => els.tooltip.classList.remove("show"));
+      window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (event) => {
+        if (localStorage.getItem(THEME_KEY)) return;
+        applyTheme(event.matches ? "dark" : "light", false);
+      });
     }
 
     bind();
