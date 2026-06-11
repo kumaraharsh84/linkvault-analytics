@@ -2,9 +2,13 @@
 # It checks expiry, records click details, and sends visitors to the long URL.
 # It also calls the geo service to enrich click analytics data.
 import json
+import logging
 import os
 import time
 import urllib.request
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 from datetime import datetime, timezone
 from decimal import Decimal
 from uuid import uuid4
@@ -40,7 +44,7 @@ def verify_token(event):
         payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
         return payload
     except Exception as exc:
-        print(f"verify_token failed: {exc}")
+        logger.error(f"verify_token failed: {exc}")
         return None
 
 # This function returns a standard unauthorized response body.
@@ -81,7 +85,7 @@ def decimal_number(value):
 # This function fetches geo data for the source IP from ip-api.com.
 def geo_lookup(ip_address):
     geo_url = (
-        f"http://ip-api.com/json/{ip_address}"
+        f"https://ip-api.com/json/{ip_address}"
         "?fields=country,city,regionName,isp,lat,lon"
     )
     try:
@@ -89,7 +93,7 @@ def geo_lookup(ip_address):
         with urllib.request.urlopen(geo_url, timeout=3) as res:
             return json.loads(res.read().decode("utf-8"))
     except Exception as exc:
-        print(f"geo lookup failed for {ip_address}: {exc}")
+        logger.error(f"geo lookup failed for {ip_address}: {exc}")
         return {
             "country": "Unknown",
             "city": "Unknown",
@@ -101,7 +105,6 @@ def geo_lookup(ip_address):
 
 # This function loads a short link, records the click, and returns a redirect.
 def lambda_handler(event, context):
-    print(f"redirect_handler event: {json.dumps(event)}")
     try:
         # This condition returns early for browser preflight requests.
         if event.get("httpMethod") == "OPTIONS":
@@ -157,9 +160,6 @@ def lambda_handler(event, context):
             "lon": decimal_number(geo["lon"]),
         }
         
-        # This write saves the click event to DynamoDB.
-        clicks_table.put_item(Item=serialize_item(click_item))
-
         # This write updates the link click count and saves the click row in one DynamoDB transaction.
         ddb_client.transact_write_items(
             TransactItems=[
@@ -194,6 +194,5 @@ def lambda_handler(event, context):
             "body": "",
         }
     except Exception as exc:
-        print(f"redirect_handler error: {exc}")
+        logger.error(f"redirect_handler error: {exc}")
         return response(500, {"error": "Failed to process redirect"})
-        return response(500, {"error": "Internal server error"})

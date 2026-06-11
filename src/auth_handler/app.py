@@ -2,7 +2,11 @@
 # It validates user input, stores users in DynamoDB, and returns JWT tokens.
 # It also returns CORS-safe responses for auth routes.
 import json
+import logging
 import os
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
@@ -39,7 +43,7 @@ def verify_token(event):
         payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
         return payload
     except Exception as exc:
-        print(f"verify_token failed: {exc}")
+        logger.error(f"verify_token failed: {exc}")
         return None
 
 # This function returns a standard unauthorized response body.
@@ -75,7 +79,6 @@ def email_lock_key(email):
 
 # This function routes the request to register or login.
 def lambda_handler(event, context):
-    print(f"auth_handler event: {json.dumps(event)}")
     try:
         method = event.get("httpMethod", "")
         path = event.get("resource") or event.get("path", "")
@@ -93,7 +96,7 @@ def lambda_handler(event, context):
 
         return response(404, {"error": "Route not found"})
     except Exception as exc:
-        print(f"auth_handler error: {exc}")
+        logger.error(f"auth_handler error: {exc}")
         return response(500, {"error": "Internal server error"})
 
 # This function creates a new user account and reserves the email.
@@ -157,7 +160,7 @@ def register(event):
     except json.JSONDecodeError:
         return response(400, {"error": "Invalid JSON body"})
     except Exception as exc:
-        print(f"register error: {exc}")
+        logger.error(f"register error: {exc}")
         return response(500, {"error": "Failed to register account"})
 
 # This function validates login details and returns a signed JWT token.
@@ -211,5 +214,5 @@ def login(event):
     except json.JSONDecodeError:
         return response(400, {"error": "Invalid JSON body"})
     except Exception as exc:
-        print(f"login error: {exc}")
+        logger.error(f"login error: {exc}")
         return response(500, {"error": "Failed to login"})

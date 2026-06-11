@@ -2,8 +2,12 @@
 # It loads links, renames titles, restores expired links, and deletes data.
 # It also cleans up click records when a link is removed.
 import json
+import logging
 import os
 import time
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 from datetime import datetime
 from decimal import Decimal
 
@@ -38,7 +42,7 @@ def verify_token(event):
         payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
         return payload
     except Exception as exc:
-        print(f"verify_token failed: {exc}")
+        logger.error(f"verify_token failed: {exc}")
         return None
 
 # This function returns a standard unauthorized response body.
@@ -118,7 +122,6 @@ def query_all_links_for_user(user_id):
 
 # This function routes list, rename, restore, and delete requests.
 def lambda_handler(event, context):
-    print(f"links_handler event: {json.dumps(event)}")
     try:
         # This condition returns early for browser preflight requests.
         if event.get("httpMethod") == "OPTIONS":
@@ -144,12 +147,12 @@ def lambda_handler(event, context):
             return delete_link(token_payload, event)
         return response(404, {"error": "Route not found"})
     except ValueError as exc:
-        print(f"links_handler validation error: {exc}")
+        logger.error(f"links_handler validation error: {exc}")
         return response(400, {"error": str(exc)})
     except json.JSONDecodeError:
         return response(400, {"error": "Invalid JSON body"})
     except Exception as exc:
-        print(f"links_handler error: {exc}")
+        logger.error(f"links_handler error: {exc}")
         return response(500, {"error": "Internal server error"})
 
 # This function returns the user's saved links in newest-first order.
@@ -160,7 +163,7 @@ def list_links(token_payload):
         items.sort(key=lambda item: item.get("createdAt", ""), reverse=True)
         return response(200, [normalize_link_item(item) for item in items])
     except Exception as exc:
-        print(f"list_links error: {exc}")
+        logger.error(f"list_links error: {exc}")
         return response(500, {"error": "Failed to load links"})
 
 # This function deletes one saved link and all of its click records.
@@ -191,7 +194,7 @@ def delete_link(token_payload, event):
 
         return response(200, {"message": "Link deleted successfully"})
     except Exception as exc:
-        print(f"delete_link error: {exc}")
+        logger.error(f"delete_link error: {exc}")
         return response(500, {"error": "Failed to delete link"})
 
 # This function updates the saved title for an existing link.
@@ -229,7 +232,7 @@ def rename_link(token_payload, event):
         item["title"] = title
         return response(200, {"message": "Link renamed successfully", "link": normalize_link_item(item)})
     except Exception as exc:
-        print(f"rename_link error: {exc}")
+        logger.error(f"rename_link error: {exc}")
         return response(500, {"error": "Failed to rename link"})
 
 # This function figures out how many days the link was meant to stay active.
@@ -257,7 +260,7 @@ def infer_expiry_days(item):
         diff_seconds = max(0, active_until - created_seconds)
         return max(1, round(diff_seconds / 86400))
     except Exception as exc:
-        print(f"infer_expiry_days failed: {exc}")
+        logger.error(f"infer_expiry_days failed: {exc}")
         return 7
 
 # This function restores an expired link while its grace window is still open.
@@ -316,5 +319,5 @@ def restore_link(token_payload, event):
         item["expiryDays"] = expiry_days
         return response(200, {"message": "Link restored successfully", "link": normalize_link_item(item)})
     except Exception as exc:
-        print(f"restore_link error: {exc}")
+        logger.error(f"restore_link error: {exc}")
         return response(500, {"error": "Failed to restore link"})

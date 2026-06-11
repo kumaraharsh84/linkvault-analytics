@@ -6,6 +6,7 @@
 ![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python)
 ![DynamoDB](https://img.shields.io/badge/DynamoDB-NoSQL-yellow?logo=amazon-dynamodb)
 ![Status](https://img.shields.io/badge/Status-Live-brightgreen)
+![CI](https://github.com/kumaraharsh84/linkvault-analytics/actions/workflows/ci.yml/badge.svg)
 
 ---
 
@@ -192,14 +193,29 @@ sam deploy --guided
 # Paste it into the API_BASE constant at the top of frontend/index.html
 ```
 
+### Run Lambdas Locally
+
+```bash
+# Run Lambdas locally with hot-reload
+sam local start-api --port 3001
+```
+
 ### Run Frontend Locally
 
 ```bash
+# In another terminal, point the frontend at localhost
+# (change API_BASE in frontend/index.html to http://localhost:3001)
 cd frontend
 python -m http.server 5500
 # Open http://localhost:5500/index.html
 ```
 
+### Run sam local invoke examples
+
+You can invoke individual Lambdas directly using event files:
+```bash
+sam local invoke AuthFunction -e events/auth-login.json
+```
 ---
 
 ## How It Works

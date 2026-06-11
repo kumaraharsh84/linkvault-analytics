@@ -1,0 +1,9 @@
+version = 0.1
+[default.deploy.parameters]
+stack_name = "linkvault"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket"
+s3_prefix = "linkvault"
+region = "ap-south-1"
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "JwtSecret=\"YOUR_SECRET_HERE\""
+image_repositories = []

@@ -1,235 +1,100 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://n5wzw93cd3.execute-api.ap-south-1.amazonaws.com;">
   <title>LinkVault</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-    :root{--nav-bg:#0f1117;--nav-border:#1f2937;--bg:#f9fafb;--bg-soft:#f3f4f6;--card:#ffffff;--text:#111827;--body:#374151;--muted:#6b7280;--border:#e5e7eb;--accent:#4f46e5;--accent-hover:#4338ca;--accent-soft:#eef2ff;--success:#10b981;--success-bg:#d1fae5;--success-text:#065f46;--danger:#ef4444;--danger-bg:#fee2e2;--danger-text:#991b1b;--warning:#f59e0b;--warning-bg:#fef3c7;--warning-text:#92400e;--shadow:0 1px 3px rgba(0,0,0,.08);--overlay:rgba(17,24,39,.42);--tooltip-bg:#111827;--tooltip-text:#f9fafb;--chart-grid:rgba(17,24,39,.08);--chart-tick:#64748b;--chart-label:#475569;--chart-center:#0f172a;--chart-subtle:#94a3b8;--chart-line:#6366f1;--chart-line-fill-start:rgba(99,102,241,.3);--chart-line-fill-end:rgba(99,102,241,0);--chart-device-1:#6366f1;--chart-device-2:#8b5cf6;--chart-device-3:#a78bfa;--chart-bar-start:#6366f1;--chart-bar-end:#8b5cf6}
-    html[data-theme="dark"]{--nav-bg:#030712;--nav-border:#111827;--bg:#030712;--bg-soft:#111827;--card:#0f172a;--text:#f8fafc;--body:#cbd5e1;--muted:#94a3b8;--border:#1e293b;--accent:#818cf8;--accent-hover:#6366f1;--accent-soft:#1e1b4b;--success:#34d399;--success-bg:#052e24;--success-text:#a7f3d0;--danger:#f87171;--danger-bg:#3f1519;--danger-text:#fecaca;--warning:#fbbf24;--warning-bg:#3b2a08;--warning-text:#fde68a;--shadow:0 16px 40px rgba(0,0,0,.28);--overlay:rgba(2,6,23,.72);--tooltip-bg:#e2e8f0;--tooltip-text:#0f172a;--chart-grid:rgba(148,163,184,.14);--chart-tick:#94a3b8;--chart-label:#cbd5e1;--chart-center:#f8fafc;--chart-subtle:#94a3b8;--chart-line:#818cf8;--chart-line-fill-start:rgba(129,140,248,.28);--chart-line-fill-end:rgba(129,140,248,0);--chart-device-1:#818cf8;--chart-device-2:#38bdf8;--chart-device-3:#34d399;--chart-bar-start:#818cf8;--chart-bar-end:#38bdf8}
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{min-height:100vh;overflow-x:hidden;background:var(--bg);color:var(--body);font-family:'Inter',sans-serif;position:relative;transition:background-color .2s ease,color .2s ease}
-    .blob{display:none}
-    @keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes spin{to{transform:rotate(360deg)}}@keyframes pulse{0%,80%,100%{transform:scale(.5);opacity:.4}40%{transform:scale(1);opacity:1}}
-    .glass{background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow)}
-    .app{position:relative;z-index:1;min-height:100vh}
-    .page{display:none;opacity:0;transition:opacity .2s ease}
-    .page.active{display:block;opacity:1;animation:fadeIn .2s ease forwards}
-    .auth-page{min-height:100vh;display:none;align-items:center;justify-content:center;padding:32px 16px;background:linear-gradient(180deg,#f9fafb 0%,#f3f4f6 100%)}
-    .auth-page.active{display:flex}
-    .auth-card{width:100%;max-width:420px;padding:32px;animation:slideUp .3s ease forwards}
-    .brand{display:grid;gap:12px;text-align:center}
-    .brand .emoji{font-size:36px}
-    .gradient{color:var(--text);background:none;-webkit-background-clip:initial;background-clip:initial}
-    .brand h1{font-size:2.5rem;line-height:1.05;font-weight:800;letter-spacing:-.04em}
-    .brand p{font-size:.75rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
-    .divider{height:1px;background:var(--border);margin:24px 0}
-    .field{display:grid;gap:8px;margin-bottom:16px}
-    .field label{font-size:.9rem;font-weight:600;color:var(--text)}
-    .input,.select{width:100%;min-height:44px;padding:10px 14px;border-radius:8px;background:#fff;border:1px solid var(--border);color:var(--text);outline:none;transition:border-color .2s ease,box-shadow .2s ease;font:500 .9rem 'Inter',sans-serif}
-    .input::placeholder{color:#9ca3af}
-    .input:focus,.select:focus{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
-    .input-wrap{position:relative}
-    .toggle-pass{position:absolute;top:50%;right:10px;transform:translateY(-50%);background:none;border:0;color:#9ca3af;width:36px;height:36px;cursor:pointer;font-size:16px}
-    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:10px 20px;border-radius:8px;border:1px solid transparent;cursor:pointer;transition:background-color .2s ease,color .2s ease,border-color .2s ease,transform .2s ease;font:600 .92rem 'Inter',sans-serif;text-decoration:none}
-    .btn:disabled{opacity:.7;cursor:not-allowed}
-    .btn:hover{transform:translateY(-1px)}
-    .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
-    .btn-primary:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
-    .btn-outline,.btn-soft{background:var(--card);border-color:var(--border);color:var(--body)}
-    .btn-outline:hover,.btn-soft:hover{background:var(--bg-soft)}
-    .btn-danger{background:var(--danger);border-color:var(--danger);color:#fff}
-    .btn-danger:hover{background:#dc2626;border-color:#dc2626}
-    .btn-full{width:100%}
-    .btn-link{background:none;border:0;color:var(--accent);cursor:pointer;font:600 .9rem 'Inter',sans-serif}
-    .inline-msg{display:none;margin-bottom:16px;padding:12px 14px;border-radius:10px;font-size:.9rem;line-height:1.5;border:1px solid transparent;animation:slideUp .2s ease}
-    .inline-msg.show{display:block}
-    .inline-msg.error{background:var(--danger-bg);border-color:#fecaca;color:var(--danger-text)}
-    .inline-msg.success{background:var(--success-bg);border-color:#a7f3d0;color:var(--success-text)}
-    .auth-foot{text-align:center;color:var(--muted);font-size:.9rem;margin-top:8px}
-    .navbar{display:none;position:sticky;top:0;z-index:100;height:56px;padding:0 24px;align-items:center;justify-content:space-between;gap:16px;background:var(--nav-bg);border-bottom:1px solid var(--nav-border)}
-    .navbar.show{display:flex}
-    .logo{display:flex;align-items:center;gap:10px;font-weight:800;color:#fff}
-    .logo span:last-child{font-size:1.05rem;letter-spacing:-.02em}
-    .tabs{display:flex;gap:8px;align-items:center}
-    .tab,.drawer-btn{min-height:36px;padding:8px 12px;border-radius:8px;background:none;border:0;color:#9ca3af;font:500 .86rem 'Inter',sans-serif;cursor:pointer}
-    .tab:hover,.drawer-btn:hover{color:#fff;background:rgba(255,255,255,.04)}
-    .tab.active,.drawer-btn.active{background:rgba(79,70,229,.16);color:#fff}
-    .nav-right{display:flex;align-items:center;gap:12px}
-    .hello{font-size:.9rem;color:#9ca3af}
-    .theme-toggle{min-height:36px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;font:600 .82rem 'Inter',sans-serif;cursor:pointer}
-    .theme-toggle:hover{background:rgba(255,255,255,.12)}
-    .burger{display:none;width:40px;height:40px;border-radius:8px;background:#111827;border:1px solid #374151;color:#fff}
-    .drawer{display:none;position:sticky;top:56px;z-index:90;padding:12px 16px;background:var(--nav-bg);border-bottom:1px solid var(--nav-border)}
-    .drawer.show{display:block}
-    .drawer .glass{padding:12px;display:grid;gap:8px;background:#111827;border-color:#1f2937;box-shadow:none}
-    .drawer .theme-toggle{justify-content:center}
-    .content{max-width:1200px;margin:0 auto;padding:32px 24px 56px}
-    #shortenPage{max-width:760px}
-    .hero{display:grid;gap:8px;margin-bottom:24px}
-    .hero h2{font-size:2.5rem;letter-spacing:-.04em;line-height:1.05;color:var(--text);font-weight:800}
-    .muted{color:var(--muted);line-height:1.6}
-    .card{padding:24px}
-    .url-row{display:grid;grid-template-columns:1fr auto;gap:12px}
-    .url-big{min-height:48px;font-size:.95rem}
-    .toggle-advanced{min-height:36px;width:max-content;background:none;border:0;color:var(--accent);cursor:pointer;font:600 .9rem 'Inter',sans-serif;margin-top:12px}
-    .advanced{display:none;padding-top:16px;border-top:1px solid var(--border);margin-top:16px}
-    .advanced.show{display:grid;gap:16px;animation:slideUp .2s ease}
-    .expiry-pills{display:flex;gap:8px;flex-wrap:wrap}
-    .item-no{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:26px;padding:0 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:.75rem;font-weight:700}
-    .title-text{font-size:1rem;font-weight:600;color:var(--text);margin-bottom:6px}
-    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}
-    .metric{text-align:left;padding:24px}
-    .metric strong{display:block;font-size:2rem;color:var(--text);margin-bottom:8px;letter-spacing:-.03em}
-    .metric span{font-size:.85rem;color:var(--muted)}
-    .head{display:grid;grid-template-columns:minmax(220px,280px) 1fr;gap:24px;align-items:start;margin-bottom:24px}
-    .head h2{font-size:2.1rem;line-height:1.05;color:var(--text);font-weight:800;letter-spacing:-.04em}
-    .head-copy{display:grid;gap:8px;padding-top:4px}
-    .head-copy p{font-size:.95rem;color:var(--muted);line-height:1.7}
-    .head-tools{display:grid;gap:16px}
-    .tools-top{display:flex;justify-content:flex-end}
-    .search{width:100%;max-width:420px}
-    .filter-pills{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-    .filter-stack{display:grid;gap:12px;justify-items:end}
-    .filter-group{display:flex;gap:8px;flex-wrap:wrap;padding:4px;background:var(--card);border:1px solid var(--border);border-radius:10px;max-width:100%}
-    .pill{min-height:36px;padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:var(--card);color:var(--muted);font:600 .82rem 'Inter',sans-serif;cursor:pointer}
-    .filter-group .pill{border-color:transparent}
-    .pill.active{background:var(--accent-soft);color:var(--accent);border-color:#c7d2fe}
-    .table-wrap{overflow:hidden;background:var(--card)}
-    .table-head,.row{display:grid;grid-template-columns:1.15fr 2.1fr .9fr 1.2fr 1.1fr;gap:16px;align-items:center;padding:18px 24px}
-    .table-head{background:var(--bg);border-bottom:1px solid var(--border);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
-    .row{border-bottom:1px solid var(--border);transition:background .15s ease}
-    .row:hover{background:var(--bg)}
-    .row:last-child{border-bottom:0}
-    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;color:var(--accent);font-weight:700}
-    .row-actions,.code-block{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-    .icon{width:40px;height:40px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;background:var(--card);border:1px solid var(--border);color:var(--body)}
-    .icon:hover{background:var(--bg-soft)}
-    .icon.red{color:var(--danger)}
-    .icon.indigo{color:var(--accent)}
-    .icon.green{color:var(--success);background:#ecfdf5;border-color:#d1fae5}
-    .url-text{max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted)}
-    .badge{display:inline-flex;align-items:center;justify-content:center;min-height:24px;padding:4px 10px;border-radius:999px;font-size:.75rem;font-weight:600;border:0}
-    .badge.expired{background:var(--danger-bg);color:var(--danger-text)}
-    .badge.soon{background:var(--warning-bg);color:var(--warning-text)}
-    .badge.restore{background:var(--success-bg);color:var(--success-text)}
-    .expiry-note{margin-top:6px;font-size:.75rem;color:var(--muted);line-height:1.5}
-    .empty{display:none;padding:48px 24px;text-align:center;color:var(--muted)}
-    .empty.show{display:block}
-    .empty .emoji{font-size:3rem;margin-bottom:12px}
-    .overlay{display:none;position:fixed;inset:0;z-index:190;align-items:center;justify-content:center;padding:24px;background:var(--overlay)}
-    .overlay.show{display:flex}
-    .modal{width:100%;max-width:420px;padding:24px}
-    .modal h3{color:var(--text);font-size:1.1rem}
-    .modal-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
-    .analytics{display:grid;gap:24px}
-    .analytics-top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
-    .info-card{display:grid;grid-template-columns:1.4fr 1fr;gap:24px;align-items:center}
-    .mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-    .mini{padding:16px;border-radius:12px;background:var(--bg);border:1px solid var(--border);text-align:center}
-    .mini strong{display:block;color:var(--text);margin-bottom:6px;font-size:1rem}
-    .charts{display:grid;gap:20px}
-    .chart-row{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
-    .chart-card{padding:24px;min-height:320px}
-    .chart-title{margin-bottom:16px;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
-    canvas{width:100%!important;height:260px!important}
-    .recent .table-head,.recent .row{grid-template-columns:1.15fr 1fr 1fr 1fr 1.2fr}
-    .tooltip{position:absolute;z-index:150;max-width:280px;padding:8px 10px;border-radius:8px;background:var(--tooltip-bg);color:var(--tooltip-text);border:1px solid var(--border);font-size:.75rem;opacity:0;pointer-events:none;transform:translateY(8px);transition:.15s ease}
-    .tooltip.show{opacity:1;transform:translateY(0)}
-    .toasts{position:fixed;top:72px;right:16px;z-index:180;max-width:360px;display:grid;gap:12px}
-    .toast{display:flex;gap:10px;align-items:flex-start;padding:14px 16px;border-radius:12px;background:var(--card);animation:slideUp .2s ease;border:1px solid var(--border);box-shadow:var(--shadow)}
-    .toast.success{border-color:#a7f3d0;background:#f0fdf4}
-    .toast.error{border-color:#fecaca;background:#fef2f2}
-    .toast.info{border-color:#c7d2fe;background:#eef2ff}
-    .loading{display:none;position:fixed;inset:0;z-index:200;align-items:center;justify-content:center;background:color-mix(in srgb, var(--bg) 82%, transparent)}
-    .loading.show{display:flex}
-    .spinner{width:40px;height:40px;border-radius:50%;border:3px solid #dbeafe;border-top-color:var(--accent);animation:spin .8s linear infinite}
-    .dots{display:inline-flex;gap:5px}.dots i{display:block;width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 1s ease-in-out infinite}.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
-    @media (max-width:1024px){.head,.info-card,.chart-row{grid-template-columns:1fr}.head-tools,.filter-stack{justify-items:stretch}.filter-pills,.tools-top{justify-content:flex-start}.search{max-width:none}}
-    @media (max-width:640px){.navbar{padding:0 16px}.tabs,.hello,.logout-desktop,.table-head{display:none}.burger{display:inline-block}.content{padding:24px 16px 44px}.auth-card,.card,.chart-card,.modal{padding:20px}.url-row,.stats,.mini-stats,.row,.recent .row{grid-template-columns:1fr}.head{gap:16px}.table-head,.row{padding:16px}.filter-group,.filter-pills{justify-content:flex-start}.url-text{max-width:100%;white-space:normal}canvas{height:220px!important}}
-  </style>
+  <link rel="stylesheet" href="styles.css">
+  <script src="chart.js" defer></script>
+  <script src="app.js" defer></script>
 </head>
 <body>
   <div class="blob"></div>
   <div class="blob"></div>
   <div class="blob"></div>
   <div class="app">
-    <div id="toasts" class="toasts"></div>
-    <div id="loading" class="loading"><div class="spinner"></div></div>
+    <div id="toasts" class="toasts" aria-live="polite"></div>
+    <div id="loading" class="loading" role="status" aria-label="Loading"><div class="spinner"></div></div>
+    
     <nav id="navbar" class="navbar">
       <div class="logo"><span>🔗</span><span class="gradient">LinkVault</span></div>
-      <div class="tabs">
-        <button class="tab" data-page="shortenPage">Shorten</button>
-        <button class="tab" data-page="linksPage">My Links</button>
-        <button class="tab" data-page="analyticsPage">Analytics</button>
+      <div class="tabs" role="tablist">
+        <button class="tab" data-page="shortenPage" role="tab">Shorten</button>
+        <button class="tab" data-page="linksPage" role="tab">My Links</button>
+        <button class="tab" data-page="analyticsPage" role="tab">Analytics</button>
       </div>
       <div class="nav-right">
-        <button id="themeToggle" class="theme-toggle" type="button">🌙 Dark</button>
+        <button id="themeToggle" class="themeToggle" type="button" aria-label="Toggle theme">🌙 Dark</button>
         <div id="hello" class="hello">Hello, User 👋</div>
         <button id="logoutBtn" class="btn btn-outline logout-desktop">Logout</button>
-        <button id="burgerBtn" class="burger">☰</button>
+        <button id="burgerBtn" class="burger" aria-expanded="false" aria-label="Open menu">☰</button>
       </div>
     </nav>
+    
     <div id="drawer" class="drawer">
-      <div class="glass">
-        <button id="themeToggleMobile" class="theme-toggle" type="button">🌙 Dark</button>
-        <button class="drawer-btn" data-page="shortenPage">Shorten</button>
-        <button class="drawer-btn" data-page="linksPage">My Links</button>
-        <button class="drawer-btn" data-page="analyticsPage">Analytics</button>
+      <div class="glass" role="tablist">
+        <button id="themeToggleMobile" class="themeToggle" type="button" aria-label="Toggle theme">🌙 Dark</button>
+        <button class="drawer-btn" data-page="shortenPage" role="tab">Shorten</button>
+        <button class="drawer-btn" data-page="linksPage" role="tab">My Links</button>
+        <button class="drawer-btn" data-page="analyticsPage" role="tab">Analytics</button>
         <button id="logoutBtnMobile" class="btn btn-danger btn-full">Logout</button>
       </div>
     </div>
+    
     <section id="loginPage" class="auth-page active">
-      <div class="auth-card glass">
-        <div class="brand"><div class="emoji">🔗</div><h1 class="gradient">LinkVault</h1><p>Shorten. Track. Analyse.</p></div>
+      <div class="auth-card glass" aria-labelledby="loginHeading">
+        <div class="brand"><div class="emoji">🔗</div><h1 id="loginHeading" class="gradient">LinkVault</h1><p>Shorten. Track. Analyse.</p></div>
         <div class="divider"></div>
         <div id="loginMsg" class="inline-msg"></div>
-        <div class="field"><label for="loginEmail">Email</label><input id="loginEmail" class="input" type="email" placeholder="john@example.com"></div>
-        <div class="field"><label for="loginPassword">Password</label><div class="input-wrap"><input id="loginPassword" class="input" type="password" placeholder="Enter password"><button class="toggle-pass" data-input="loginPassword" type="button">👁</button></div></div>
+        <div class="field"><label for="loginEmail">Email</label><input id="loginEmail" class="input" type="email" placeholder="john@example.com" autocomplete="email"></div>
+        <div class="field"><label for="loginPassword">Password</label><div class="input-wrap"><input id="loginPassword" class="input" type="password" placeholder="Enter password" autocomplete="current-password"><button class="toggle-pass" data-input="loginPassword" type="button" aria-label="Show password">👁</button></div></div>
         <button id="loginBtn" class="btn btn-primary btn-full">Login</button>
         <div class="auth-foot">Don't have an account? <button id="goRegister" class="btn-link" type="button">Register</button></div>
       </div>
     </section>
+    
     <section id="registerPage" class="auth-page">
-      <div class="auth-card glass">
-        <div class="brand"><div class="emoji">✨</div><h1 class="gradient">Create Account</h1><p>Build your link workspace</p></div>
+      <div class="auth-card glass" aria-labelledby="registerHeading">
+        <div class="brand"><div class="emoji">✨</div><h1 id="registerHeading" class="gradient">Create Account</h1><p>Build your link workspace</p></div>
         <div class="divider"></div>
         <div id="registerMsg" class="inline-msg"></div>
-        <div class="field"><label for="registerName">Name</label><input id="registerName" class="input" type="text" placeholder="John Doe"></div>
-        <div class="field"><label for="registerEmail">Email</label><input id="registerEmail" class="input" type="email" placeholder="john@example.com"></div>
-        <div class="field"><label for="registerPassword">Password</label><div class="input-wrap"><input id="registerPassword" class="input" type="password" placeholder="Create password"><button class="toggle-pass" data-input="registerPassword" type="button">👁</button></div></div>
+        <div class="field"><label for="registerName">Name</label><input id="registerName" class="input" type="text" placeholder="John Doe" autocomplete="name"></div>
+        <div class="field"><label for="registerEmail">Email</label><input id="registerEmail" class="input" type="email" placeholder="john@example.com" autocomplete="email"></div>
+        <div class="field"><label for="registerPassword">Password</label><div class="input-wrap"><input id="registerPassword" class="input" type="password" placeholder="Create password" minlength="8" autocomplete="new-password"><button class="toggle-pass" data-input="registerPassword" type="button" aria-label="Show password">👁</button></div></div>
         <button id="registerBtn" class="btn btn-primary btn-full">Create Account</button>
         <div class="auth-foot">Already have an account? <button id="goLogin" class="btn-link" type="button">Login</button></div>
       </div>
     </section>
+    
     <main id="shortenPage" class="page content">
       <div class="hero">
         <h2 class="gradient">Shorten & Track</h2>
         <p class="muted">Create powerful short links with built-in analytics.</p>
       </div>
       <section class="glass card">
-        <div class="url-row">
-          <input id="longUrl" class="input url-big" type="text" placeholder="Paste your long URL here...">
-          <button id="shortenBtn" class="btn btn-primary">Shorten</button>
-        </div>
-        <button id="advancedBtn" class="toggle-advanced" type="button">▾ Advanced Options</button>
-        <div id="advancedPanel" class="advanced">
-          <div class="field">
-            <label for="linkTitle">Saved title (optional)</label>
-            <input id="linkTitle" class="input" type="text" maxlength="80" placeholder="e.g. Gym Reel, CSS Tips, Study Video">
+        <form id="shortenForm">
+          <div class="url-row">
+            <input id="longUrl" class="input url-big" type="text" placeholder="Paste your long URL here..." aria-label="Destination URL">
+            <button id="shortenBtn" class="btn btn-primary" type="submit">Shorten</button>
           </div>
-          <div class="field">
-            <label for="expiryDays">Link expires after</label>
-            <div class="expiry-pills">
-              <button class="pill" type="button" data-expiry-option="0">Never</button>
-              <button class="pill" type="button" data-expiry-option="1">1 Day</button>
-              <button class="pill active" type="button" data-expiry-option="7">7 Days</button>
-              <button class="pill" type="button" data-expiry-option="30">30 Days</button>
+          <button id="advancedBtn" class="toggle-advanced" type="button" aria-expanded="false">▾ Advanced Options</button>
+          <div id="advancedPanel" class="advanced">
+            <div class="field">
+              <label for="linkTitle">Saved title (optional)</label>
+              <input id="linkTitle" class="input" type="text" maxlength="80" placeholder="e.g. Gym Reel, CSS Tips, Study Video">
+            </div>
+            <div class="field">
+              <label for="expiryDays">Link expires after</label>
+              <div class="expiry-pills" id="expiryDays" role="radiogroup" aria-label="Expiry Days">
+                <button class="pill" type="button" data-expiry-option="0" role="radio" aria-checked="false">Never</button>
+                <button class="pill" type="button" data-expiry-option="1" role="radio" aria-checked="false">1 Day</button>
+                <button class="pill active" type="button" data-expiry-option="7" role="radio" aria-checked="true">7 Days</button>
+                <button class="pill" type="button" data-expiry-option="30" role="radio" aria-checked="false">30 Days</button>
+              </div>
             </div>
           </div>
-        </div>
+        </form>
       </section>
       <section class="stats">
         <article class="glass metric"><strong id="totalLinks">0</strong><span>Total Links Created</span></article>
@@ -237,6 +102,7 @@
         <article class="glass metric"><strong id="mostClicked">-</strong><span>Most Clicked Link</span></article>
       </section>
     </main>
+    
     <main id="linksPage" class="page content">
       <div class="head">
         <div class="head-copy">
@@ -245,27 +111,28 @@
         </div>
         <div class="head-tools">
           <div class="tools-top">
-            <input id="searchInput" class="input search" type="text" placeholder="Search links...">
+            <input id="searchInput" class="input search" type="text" placeholder="Search links..." aria-label="Search links">
           </div>
           <div class="filter-stack">
-            <div class="filter-pills"><button class="pill active" data-range="all">All</button><button class="pill" data-range="1">Today</button><button class="pill" data-range="7">7 Days</button><button class="pill" data-range="30">30 Days</button></div>
-            <div class="filter-group"><button class="pill active" data-expiry-filter="all">All Links</button><button class="pill" data-expiry-filter="active">Active</button><button class="pill" data-expiry-filter="restorable">Grace Window</button></div>
-            <div class="filter-group"><button class="pill active" data-expiry-sort="newest">Newest</button><button class="pill" data-expiry-sort="oldest">Oldest</button></div>
+            <div class="filter-pills" role="radiogroup" aria-label="Date Range"><button class="pill active" data-range="all" role="radio" aria-checked="true">All</button><button class="pill" data-range="1" role="radio" aria-checked="false">Today</button><button class="pill" data-range="7" role="radio" aria-checked="false">7 Days</button><button class="pill" data-range="30" role="radio" aria-checked="false">30 Days</button></div>
+            <div class="filter-group" role="radiogroup" aria-label="Link Status"><button class="pill active" data-expiry-filter="all" role="radio" aria-checked="true">All Links</button><button class="pill" data-expiry-filter="active" role="radio" aria-checked="false">Active</button><button class="pill" data-expiry-filter="restorable" role="radio" aria-checked="false">Grace Window</button></div>
+            <div class="filter-group" role="radiogroup" aria-label="Sort By"><button class="pill active" data-expiry-sort="newest" role="radio" aria-checked="true">Newest</button><button class="pill" data-expiry-sort="oldest" role="radio" aria-checked="false">Oldest</button></div>
           </div>
         </div>
       </div>
-      <section class="glass table-wrap">
-        <div class="table-head"><div>Short Code</div><div>Saved Title & Long URL</div><div>Clicks</div><div>Expires</div><div>Actions</div></div>
-        <div id="linksList"></div>
+      <section class="glass table-wrap" role="table" aria-label="Links List">
+        <div class="table-head" role="row"><div role="columnheader">Short Code</div><div role="columnheader">Saved Title & Long URL</div><div role="columnheader">Clicks</div><div role="columnheader">Expires</div><div role="columnheader">Actions</div></div>
+        <div id="linksList" role="rowgroup"></div>
         <div id="linksEmpty" class="empty"><div class="emoji">🔗</div><h3>No links yet</h3><p>Create your first short link to get started.</p><div style="margin-top:16px"><button id="emptyCreate" class="btn btn-primary">Create Link</button></div></div>
       </section>
-      <div id="renameOverlay" class="overlay">
+      
+      <div id="renameOverlay" class="overlay" role="dialog" aria-labelledby="renameHeading" aria-modal="true">
         <div class="glass modal">
-          <h3>Rename this link</h3>
+          <h3 id="renameHeading">Rename this link</h3>
           <p class="muted" style="margin-top:10px">Add a personal title so you can recognize this saved link later.</p>
           <div class="field" style="margin-top:18px;margin-bottom:0">
-            <label for="renameTitle">Saved title</label>
-            <input id="renameTitle" class="input" type="text" maxlength="80" placeholder="e.g. Instagram Reel Idea">
+            <label for="renameTitleInput">Saved title</label>
+            <input id="renameTitleInput" class="input" type="text" maxlength="80" placeholder="e.g. Instagram Reel Idea">
           </div>
           <div class="modal-actions">
             <button id="cancelRename" class="btn btn-outline">Cancel</button>
@@ -273,14 +140,16 @@
           </div>
         </div>
       </div>
-      <div id="deleteOverlay" class="overlay">
+      
+      <div id="deleteOverlay" class="overlay" role="dialog" aria-labelledby="deleteHeading" aria-modal="true">
         <div class="glass modal">
-          <h3>Delete this link?</h3>
+          <h3 id="deleteHeading">Delete this link?</h3>
           <p class="muted" style="margin-top:10px">This will permanently delete the link and all its click analytics.</p>
           <div class="modal-actions"><button id="cancelDelete" class="btn btn-outline">Cancel</button><button id="confirmDelete" class="btn btn-danger">Delete</button></div>
         </div>
       </div>
     </main>
+    
     <main id="analyticsPage" class="page content">
       <div class="analytics">
         <div class="analytics-top"><button id="backLinks" class="btn btn-outline">← My Links</button><button id="refreshAnalytics" class="btn btn-soft">↻ Refresh</button></div>
@@ -293,357 +162,21 @@
           </div>
         </section>
         <section class="charts">
-          <article class="glass chart-card"><div class="chart-title">Clicks Over Time</div><canvas id="lineChart"></canvas></article>
+          <article class="glass chart-card"><div class="chart-title">Clicks Over Time</div><canvas id="lineChart" role="img" aria-label="Line chart showing clicks over time"></canvas></article>
           <div class="chart-row">
-            <article class="glass chart-card"><div class="chart-title">By Device</div><canvas id="deviceChart"></canvas></article>
-            <article class="glass chart-card"><div class="chart-title">Top Countries</div><canvas id="countryChart"></canvas></article>
+            <article class="glass chart-card"><div class="chart-title">By Device</div><canvas id="deviceChart" role="img" aria-label="Doughnut chart showing clicks by device type"></canvas></article>
+            <article class="glass chart-card"><div class="chart-title">Top Countries</div><canvas id="countryChart" role="img" aria-label="Bar chart showing top countries by clicks"></canvas></article>
           </div>
         </section>
-        <section class="glass table-wrap recent">
-          <div class="table-head"><div>Time</div><div>Device</div><div>Country</div><div>City</div><div>ISP</div></div>
-          <div id="recentList"></div>
+        <section class="glass table-wrap recent" role="table" aria-label="Recent Clicks">
+          <div class="table-head" role="row"><div role="columnheader">Time</div><div role="columnheader">Device</div><div role="columnheader">Country</div><div role="columnheader">City</div><div role="columnheader">ISP</div></div>
+          <div id="recentList" role="rowgroup"></div>
           <div id="recentEmpty" class="empty"><h3>No clicks recorded yet</h3></div>
         </section>
       </div>
     </main>
-    <div id="tooltip" class="tooltip"></div>
+    
+    <div id="tooltip" class="tooltip" role="tooltip"></div>
   </div>
-  <script>
-    // This file renders the full LinkVault frontend in one page.
-    // It handles auth, saved links, restore actions, and analytics charts.
-    // It also sends requests to the deployed API and updates the UI state.
-    const API_BASE = "https://n5wzw93cd3.execute-api.ap-south-1.amazonaws.com/Prod";
-
-    const THEME_KEY = "linkvault-theme";
-    const RESTORE_GRACE_DAYS = 7;
-    const state = { links: [], filtered: [], current: "loginPage", analyticsCode: null, deleteCode: null, renameCode: null, charts: {}, drawer: false, range: "all", expiryFilter: "all", expirySort: "newest", createExpiry: "7" };
-    const $ = (id) => document.getElementById(id);
-    const els = {
-      navbar: $("navbar"), drawer: $("drawer"), hello: $("hello"), loading: $("loading"), toasts: $("toasts"),
-      loginMsg: $("loginMsg"), registerMsg: $("registerMsg"), tooltip: $("tooltip"),
-      advancedPanel: $("advancedPanel"), totalLinks: $("totalLinks"), totalClicks: $("totalClicks"),
-      mostClicked: $("mostClicked"), linksList: $("linksList"), linksEmpty: $("linksEmpty"), renameOverlay: $("renameOverlay"), deleteOverlay: $("deleteOverlay"),
-      analyticsCode: $("analyticsCode"), analyticsLong: $("analyticsLong"), analyticsClicks: $("analyticsClicks"),
-      analyticsCreatedAt: $("analyticsCreatedAt"), analyticsExpiresAt: $("analyticsExpiresAt"), recentList: $("recentList"), recentEmpty: $("recentEmpty"),
-      renameTitle: $("renameTitle"), themeToggle: $("themeToggle"), themeToggleMobile: $("themeToggleMobile")
-    };
-
-    // This chart plugin draws the total click count inside the doughnut chart.
-    const centerTextPlugin = { id: "centerText", afterDraw(chart, args, options) { if (!options || !options.text) return; const { ctx, chartArea } = chart; ctx.save(); ctx.fillStyle = themeValue("--chart-center"); ctx.font = "700 24px Inter"; ctx.textAlign = "center"; ctx.fillText(options.text, (chartArea.left + chartArea.right) / 2, (chartArea.top + chartArea.bottom) / 2 - 6); ctx.fillStyle = themeValue("--chart-subtle"); ctx.font = "500 12px Inter"; ctx.fillText("total clicks", (chartArea.left + chartArea.right) / 2, (chartArea.top + chartArea.bottom) / 2 + 16); ctx.restore(); } };
-    Chart.register(centerTextPlugin);
-
-    // This helper safely escapes dynamic strings before rendering them inside HTML.
-    function escapeHtml(value) { return String(value || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/'/g, "&#39;"); }
-
-    // This helper keeps auth state only for the current browser session.
-    function sessionToken() { return sessionStorage.getItem("token"); }
-
-    // This helper returns the auth headers required by protected backend routes.
-    function authHeaders() { return { "Content-Type": "application/json", "Authorization": "Bearer " + sessionToken() }; }
-
-    // This helper toggles the full-screen loading overlay around API calls.
-    function setLoading(show) { els.loading.classList.toggle("show", show); }
-
-    // This helper shows a toast notification with the chosen status styling.
-    function toast(type, message) { const node = document.createElement("div"); const icon = type === "success" ? "✅" : type === "error" ? "❌" : "ℹ️"; node.className = "toast " + type; node.innerHTML = "<div>" + icon + "</div><div>" + message + "</div>"; els.toasts.appendChild(node); setTimeout(() => { node.style.opacity = "0"; node.style.transform = "translateY(-8px)"; setTimeout(() => node.remove(), 250); }, 3000); }
-
-    // This helper renders auth card messages for login and registration feedback.
-    function showInline(target, type, message) { target.className = "inline-msg show " + type; target.textContent = message; }
-
-    // This helper clears any auth card message before a new request starts.
-    function clearInline(target) { target.className = "inline-msg"; target.textContent = ""; }
-
-    // This helper reads theme-aware CSS variables for charts and chrome updates.
-    function themeValue(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
-
-    // This helper returns the current stored theme or falls back to the OS preference.
-    function preferredTheme() {
-      const saved = localStorage.getItem(THEME_KEY);
-      if (saved === "light" || saved === "dark") return saved;
-      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-    }
-
-    // This helper refreshes the theme toggle labels in desktop and mobile navigation.
-    function syncThemeToggle() {
-      const dark = document.documentElement.dataset.theme === "dark";
-      const label = dark ? "☀️ Light" : "🌙 Dark";
-      els.themeToggle.textContent = label;
-      els.themeToggleMobile.textContent = label;
-    }
-
-    // This helper applies the theme and redraws analytics charts when colors change.
-    function applyTheme(theme, persist = true) {
-      document.documentElement.dataset.theme = theme;
-      if (persist) localStorage.setItem(THEME_KEY, theme);
-      syncThemeToggle();
-      if (state.current === "analyticsPage" && state.analyticsCode) loadAnalytics(state.analyticsCode);
-    }
-
-    // This helper flips between the light and dark theme variants.
-    function toggleTheme() { applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark"); }
-
-    // This helper formats timestamps into a readable local string.
-    function formatDate(value) { if (!value) return "Never"; const date = new Date(value); if (Number.isNaN(date.getTime())) return String(value); return date.toLocaleString(); }
-
-    // This helper formats Unix expiry values returned by the API.
-    function formatExpiry(expiry) { if (!expiry || Number(expiry) === 0) return "Never"; return new Date(Number(expiry) * 1000).toLocaleString(); }
-
-    // This helper turns an exact timestamp into a friendly label like 2 days ago.
-    function formatRelativeTime(value) {
-      if (!value) return "saved recently";
-      const timestamp = new Date(value).getTime();
-      if (Number.isNaN(timestamp)) return "saved recently";
-      const diffMs = Date.now() - timestamp;
-      const minutes = Math.max(1, Math.floor(diffMs / 60000));
-      if (minutes < 60) return `saved ${minutes} minute${minutes === 1 ? "" : "s"} ago`;
-      const hours = Math.floor(minutes / 60);
-      if (hours < 24) return `saved ${hours} hour${hours === 1 ? "" : "s"} ago`;
-      const days = Math.floor(hours / 24);
-      if (days < 7) return `saved ${days} day${days === 1 ? "" : "s"} ago`;
-      const weeks = Math.floor(days / 7);
-      if (days < 30) return `saved ${weeks} week${weeks === 1 ? "" : "s"} ago`;
-      const months = Math.floor(days / 30);
-      return `saved ${months} month${months === 1 ? "" : "s"} ago`;
-    }
-
-    // This helper auto-adds https:// when a user pastes a URL without a scheme.
-    function normalizeLongUrl(value) {
-      const trimmed = value.trim();
-      if (!trimmed) return "";
-      return /^https?:\/\//i.test(trimmed) ? trimmed : "https://" + trimmed;
-    }
-
-    // This helper validates URLs so incomplete values like https://rinvisagi are rejected before submit.
-    function isValidLongUrl(value) {
-      try {
-        const parsed = new URL(normalizeLongUrl(value));
-        if (!["http:", "https:"].includes(parsed.protocol)) return false;
-        const host = parsed.hostname || "";
-        if (!host || /\s/.test(host)) return false;
-        return host === "localhost" || host.includes(".") || /^\d{1,3}(\.\d{1,3}){3}$/.test(host);
-      } catch (error) {
-        return false;
-      }
-    }
-
-    // This helper blocks users from shortening an existing LinkVault short URL again.
-    function isExistingShortUrl(value) {
-      try {
-        const normalized = normalizeLongUrl(value);
-        if (!API_BASE.startsWith("http")) return false;
-        const inputUrl = new URL(normalized);
-        const apiUrl = new URL(API_BASE);
-        const apiBasePath = apiUrl.pathname.replace(/\/$/, "");
-        return inputUrl.host === apiUrl.host && inputUrl.pathname.startsWith(apiBasePath + "/s/");
-      } catch (error) {
-        return false;
-      }
-    }
-
-    // This helper builds the visible short-link prefix shown in the advanced form.
-    function shortPrefix() { if (!API_BASE.startsWith("http")) return "yourdomain.com/s/"; return API_BASE.replace(/\/$/, "") + "/s/"; }
-
-    // This helper updates navbar text and prefix labels from stored user data.
-    function refreshChrome() { const name = sessionStorage.getItem("userName") || "User"; els.hello.textContent = "Hello, " + name + " 👋"; els.navbar.classList.toggle("show", Boolean(sessionToken())); }
-
-    // This helper swaps a button into and out of its loading state.
-    function setButtonLoading(button, loading, fallbackText) { if (!button.dataset.defaultText) button.dataset.defaultText = button.innerHTML; button.disabled = loading; button.innerHTML = loading ? '<span>Loading...</span><span class="dots"><i></i><i></i><i></i></span>' : (fallbackText || button.dataset.defaultText); }
-
-    // This helper keeps the advanced section and its toggle text in sync.
-    function setAdvancedPanel(open) { els.advancedPanel.classList.toggle("show", open); $("advancedBtn").textContent = (open ? "▴" : "▾") + " Advanced Options"; }
-
-    // This helper resets shorten-form defaults after each submission.
-    function resetShortenFormDefaults() { $("longUrl").value = ""; $("linkTitle").value = ""; state.createExpiry = "7"; document.querySelectorAll("[data-expiry-option]").forEach((pill) => pill.classList.toggle("active", pill.dataset.expiryOption === state.createExpiry)); }
-
-    // This helper clears the active class from every page before a new one is shown.
-    function resetPages() { document.querySelectorAll(".page,.auth-page").forEach((page) => page.classList.remove("active")); }
-
-    // This helper keeps navbar tabs and mobile drawer buttons aligned with the current page.
-    function syncNav(pageId) { document.querySelectorAll("[data-page]").forEach((btn) => btn.classList.toggle("active", btn.dataset.page === pageId)); }
-
-    // This helper opens or closes the mobile drawer on small screens.
-    function toggleDrawer(force) { state.drawer = typeof force === "boolean" ? force : !state.drawer; els.drawer.classList.toggle("show", state.drawer); }
-
-    // This helper changes visible SPA pages and resets scroll position for each switch.
-    function showPage(pageId) { resetPages(); const page = $(pageId); if (!page) return; page.classList.add("active"); state.current = pageId; syncNav(pageId); toggleDrawer(false); window.scrollTo({ top: 0, behavior: "smooth" }); }
-
-    // This helper handles expired JWT sessions by resetting storage and UI state.
-    function handleUnauthorized() { sessionStorage.removeItem("token"); sessionStorage.removeItem("userName"); refreshChrome(); toast("error", "Session expired, please login again"); showPage("loginPage"); }
-
-    // This helper wraps fetch so errors and unauthorized states are handled consistently.
-    async function api(path, options = {}, protectedRoute = true) { const response = await fetch(API_BASE + path, options); const raw = await response.text(); let data = {}; try { data = raw ? JSON.parse(raw) : {}; } catch (error) { data = { raw }; } if (response.status === 401 && protectedRoute) { handleUnauthorized(); throw new Error("Unauthorized"); } if (!response.ok) throw new Error(data.error || data.message || "Something went wrong"); return data; }
-
-    // This helper copies text to the clipboard and surfaces a success toast.
-    async function copyText(value) { await navigator.clipboard.writeText(value); toast("success", "Copied to clipboard"); }
-
-    // This helper calculates and renders the dashboard metric cards from loaded links.
-    function renderMetrics() { const totalLinks = state.links.length; const totalClicks = state.links.reduce((sum, link) => sum + Number(link.clickCount || 0), 0); const top = [...state.links].sort((a, b) => Number(b.clickCount || 0) - Number(a.clickCount || 0))[0]; els.totalLinks.textContent = String(totalLinks); els.totalClicks.textContent = String(totalClicks); els.mostClicked.textContent = top ? top.code : "-"; }
-
-    // This helper finds the visible saved position for a given short code.
-    function findLinkNumber(code) { const index = state.links.findIndex((link) => link.code === code); return index >= 0 ? index + 1 : null; }
-
-    // This helper classifies a link by its configured expiry bucket.
-    function linkExpiryBucket(link) {
-      if (!link.expiresAt || Number(link.expiresAt) === 0) return "never";
-      const created = new Date(link.createdAt || "").getTime();
-      if (Number.isNaN(created)) return "custom";
-      const diffDays = Math.round((Number(link.expiresAt) * 1000 - created) / 86400000);
-      if (diffDays <= 1) return "1";
-      if (diffDays <= 7) return "7";
-      if (diffDays <= 30) return "30";
-      return "custom";
-    }
-
-    // This helper returns the effective purge time that controls the extra restore window.
-    function linkPurgeAt(link) {
-      if (!link.expiresAt || Number(link.expiresAt) === 0) return 0;
-      return Number(link.purgeAt || (Number(link.expiresAt) + (RESTORE_GRACE_DAYS * 86400)));
-    }
-
-    // This helper checks whether an expired link is still inside the 7-day grace window.
-    function isRestorable(link) {
-      if (!link.expiresAt || Number(link.expiresAt) === 0) return false;
-      const nowSeconds = Math.floor(Date.now() / 1000);
-      return Number(link.expiresAt) <= nowSeconds && linkPurgeAt(link) > nowSeconds;
-    }
-
-    // This helper returns how many grace days remain for restoring an expired link.
-    function restoreDaysLeft(link) {
-      const purgeAt = linkPurgeAt(link);
-      if (!purgeAt) return 0;
-      const secondsLeft = purgeAt - Math.floor(Date.now() / 1000);
-      return secondsLeft <= 0 ? 0 : Math.ceil(secondsLeft / 86400);
-    }
-
-    // This helper filters the links array by code or long URL from the search box.
-    function filterLinks() { const query = $("searchInput").value.trim().toLowerCase(); const now = Date.now(); const nowSeconds = Math.floor(now / 1000); state.filtered = state.links.filter((link) => { const matchesQuery = (link.code || "").toLowerCase().includes(query) || (link.longUrl || "").toLowerCase().includes(query) || (link.title || "").toLowerCase().includes(query); if (!matchesQuery) return false; if (state.range !== "all") { const createdAt = new Date(link.createdAt || "").getTime(); if (Number.isNaN(createdAt) || now - createdAt > Number(state.range) * 86400000) return false; } if (state.expiryFilter === "all") return true; if (state.expiryFilter === "active") return !link.expiresAt || Number(link.expiresAt) === 0 || Number(link.expiresAt) > nowSeconds; if (state.expiryFilter === "expired") return Boolean(link.expiresAt) && Number(link.expiresAt) !== 0 && Number(link.expiresAt) <= nowSeconds; if (state.expiryFilter === "restorable") return isRestorable(link); return linkExpiryBucket(link) === state.expiryFilter; }); state.filtered.sort((a, b) => { if (state.expirySort === "oldest") return (a.createdAt || "").localeCompare(b.createdAt || ""); if (state.expirySort === "expires-soon") { const aExpiry = !a.expiresAt || Number(a.expiresAt) === 0 ? Number.MAX_SAFE_INTEGER : Number(a.expiresAt); const bExpiry = !b.expiresAt || Number(b.expiresAt) === 0 ? Number.MAX_SAFE_INTEGER : Number(b.expiresAt); return aExpiry - bExpiry; } if (state.expirySort === "expires-late") { const aExpiry = !a.expiresAt || Number(a.expiresAt) === 0 ? Number.MAX_SAFE_INTEGER : Number(a.expiresAt); const bExpiry = !b.expiresAt || Number(b.expiresAt) === 0 ? Number.MAX_SAFE_INTEGER : Number(b.expiresAt); return bExpiry - aExpiry; } return (b.createdAt || "").localeCompare(a.createdAt || ""); }); renderLinks(); }
-
-    // This helper returns the correct visual expiry state for each link row.
-    function expiryLabel(link) { if (!link.expiresAt || Number(link.expiresAt) === 0) return "<span>Never</span>"; const now = Math.floor(Date.now() / 1000); const diff = Number(link.expiresAt) - now; if (diff <= 0) { const grace = isRestorable(link) ? `<div class="expiry-note">Restore available for ${restoreDaysLeft(link)} more day(s)</div><span class="badge restore">Can Restore</span>` : '<div class="expiry-note">Restore window ended</div>'; return '<span style="color:#fca5a5">' + formatExpiry(link.expiresAt) + '</span> <span class="badge expired">Expired</span>' + grace; } if (diff < 86400) return '<span style="color:#fca5a5">' + formatExpiry(link.expiresAt) + '</span> <span class="badge soon">Expiring Soon</span>'; return "<span>" + formatExpiry(link.expiresAt) + "</span>"; }
-
-    // This helper renders the grid-based My Links list for desktop and mobile layouts.
-    function renderLinks() { els.linksList.innerHTML = ""; els.linksEmpty.classList.toggle("show", state.filtered.length === 0); state.filtered.forEach((link, index) => { const row = document.createElement("div"); row.className = "row"; const title = link.title && link.title.trim() ? link.title.trim() : "Untitled link"; const restoreButton = isRestorable(link) ? `<button class="icon green" data-restore="${escapeHtml(link.code)}" title="Restore Link">↺</button>` : ""; row.innerHTML = `<div><div class="code-block"><span class="item-no">#${index + 1}</span><span class="mono">${escapeHtml(link.code)}</span><button class="icon" data-copy="${escapeHtml(link.code)}" title="Copy short URL">📋</button></div></div><div><div class="title-text">${escapeHtml(title)}</div><div class="url-text" data-tip="${escapeHtml(link.longUrl)}">${escapeHtml(link.longUrl)}</div><div class="muted" style="margin-top:8px">${escapeHtml(formatRelativeTime(link.createdAt))}</div><div class="muted">${escapeHtml(link.createdAt ? "Saved on " + formatDate(link.createdAt) : "")}</div></div><div><strong>${Number(link.clickCount || 0)}</strong> 👆</div><div>${expiryLabel(link)}</div><div><div class="row-actions">${restoreButton}<button class="icon" data-rename="${escapeHtml(link.code)}" title="Rename Link">✏️</button><button class="icon indigo" data-analytics="${escapeHtml(link.code)}" title="View Analytics">📊</button><button class="icon red" data-delete="${escapeHtml(link.code)}" title="Delete Link">🗑️</button></div></div>`; els.linksList.appendChild(row); }); }
-
-    // This helper fetches the latest link list and refreshes all dashboard summaries.
-    async function loadLinks() { setLoading(true); try { const data = await api("/links", { headers: authHeaders() }); state.links = Array.isArray(data) ? data : []; state.filtered = [...state.links]; renderLinks(); renderMetrics(); } catch (error) { if (error.message !== "Unauthorized") toast("error", error.message); } finally { setLoading(false); } }
-
-    // This helper opens the delete confirmation surface for a chosen short code.
-    function openDelete(code) { state.deleteCode = code; els.deleteOverlay.classList.add("show"); }
-
-    // This helper closes the delete confirmation surface without deleting data.
-    function closeDelete() { state.deleteCode = null; els.deleteOverlay.classList.remove("show"); }
-
-    // This helper opens the rename modal and seeds it with the current saved title.
-    function openRename(code) { const link = state.links.find((item) => item.code === code); state.renameCode = code; els.renameTitle.value = link && link.title ? link.title : ""; els.renameOverlay.classList.add("show"); }
-
-    // This helper closes the rename modal without changing the saved title.
-    function closeRename() { state.renameCode = null; els.renameTitle.value = ""; els.renameOverlay.classList.remove("show"); }
-
-    // This helper saves a new personal title for an existing short link.
-    async function renameLink() { if (!state.renameCode) return; const button = $("confirmRename"); setButtonLoading(button, true, "Save Title"); try { const payload = { title: els.renameTitle.value.trim() }; const data = await api("/links/" + encodeURIComponent(state.renameCode), { method: "PATCH", headers: authHeaders(), body: JSON.stringify(payload) }); const updatedLink = data.link || {}; state.links = state.links.map((link) => link.code === state.renameCode ? { ...link, ...updatedLink } : link); filterLinks(); toast("success", "Link renamed successfully"); closeRename(); } catch (error) { if (error.message !== "Unauthorized") toast("error", error.message); } finally { setButtonLoading(button, false, "Save Title"); } }
-
-    // This helper deletes a link and then refreshes the list from the backend.
-    async function removeLink() { if (!state.deleteCode) return; const button = $("confirmDelete"); setButtonLoading(button, true, "Delete"); try { await api("/links/" + encodeURIComponent(state.deleteCode), { method: "DELETE", headers: authHeaders() }); toast("success", "Link deleted successfully"); closeDelete(); await loadLinks(); } catch (error) { if (error.message !== "Unauthorized") toast("error", error.message); } finally { setButtonLoading(button, false, "Delete"); } }
-
-    // This helper restores an expired link during its extra 7-day grace window.
-    async function restoreLink(code) { try { const data = await api("/links/" + encodeURIComponent(code) + "/restore", { method: "POST", headers: authHeaders() }); const updatedLink = data.link || {}; state.links = state.links.map((link) => link.code === code ? { ...link, ...updatedLink } : link); filterLinks(); renderMetrics(); toast("success", "Link restored successfully"); } catch (error) { if (error.message !== "Unauthorized") toast("error", error.message); } }
-
-    // This helper submits the shorten form and keeps the success feedback lightweight on the dashboard.
-    async function shorten() { const button = $("shortenBtn"); setButtonLoading(button, true, "Shorten"); try { const payload = { longUrl: normalizeLongUrl($("longUrl").value), title: $("linkTitle").value.trim(), expiryDays: Number(state.createExpiry || 0) }; if (!isValidLongUrl(payload.longUrl)) throw new Error("Please enter a valid URL, for example example.com/page or https://example.com/page"); if (isExistingShortUrl(payload.longUrl)) throw new Error("This is already a LinkVault short URL. Please use the original destination URL instead."); const data = await api("/shorten", { method: "POST", headers: authHeaders(), body: JSON.stringify(payload) }); await loadLinks(); resetShortenFormDefaults(); if (data.alreadyExists) { const savedNumber = findLinkNumber(data.code); const savedTitle = data.title && data.title.trim() ? data.title.trim() : "Untitled link"; toast("info", `Already saved as ${savedNumber ? "#" + savedNumber + " " : ""}${savedTitle}`); } else { toast("success", "Saved to My Links"); } } catch (error) { if (error.message !== "Unauthorized") toast("error", error.message); } finally { setButtonLoading(button, false, "Shorten"); } }
-
-    // This helper performs login and then opens the main shorten dashboard.
-    async function login() { clearInline(els.loginMsg); const button = $("loginBtn"); setButtonLoading(button, true, "Login"); try { const data = await api("/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: $("loginEmail").value.trim(), password: $("loginPassword").value.trim() }) }, false); sessionStorage.setItem("token", data.token); sessionStorage.setItem("userName", data.name || "User"); refreshChrome(); showPage("shortenPage"); toast("success", "Welcome back, " + (data.name || "User")); await loadLinks(); } catch (error) { showInline(els.loginMsg, "error", error.message); } finally { setButtonLoading(button, false, "Login"); } }
-
-    // This helper registers a new user and then routes them back to the login screen.
-    async function register() { clearInline(els.registerMsg); const button = $("registerBtn"); setButtonLoading(button, true, "Create Account"); try { await api("/auth/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: $("registerName").value.trim(), email: $("registerEmail").value.trim(), password: $("registerPassword").value.trim() }) }, false); showInline(els.registerMsg, "success", "Account created successfully. Redirecting to login..."); toast("success", "Registration successful"); setTimeout(() => { $("loginEmail").value = $("registerEmail").value.trim(); $("loginPassword").value = ""; showPage("loginPage"); clearInline(els.registerMsg); }, 1200); } catch (error) { showInline(els.registerMsg, "error", error.message); } finally { setButtonLoading(button, false, "Create Account"); } }
-    // This helper logs the user out and returns the app to the auth screen.
-    function logout() { sessionStorage.removeItem("token"); sessionStorage.removeItem("userName"); state.analyticsCode = null; refreshChrome(); showPage("loginPage"); toast("info", "Logged out successfully"); }
-
-    // This helper returns a best-effort flag emoji for analytics country rows.
-    function countryFlag(country) { const map = { India: "🇮🇳", USA: "🇺🇸", "United States": "🇺🇸", Canada: "🇨🇦", Germany: "🇩🇪", France: "🇫🇷", Unknown: "🌍" }; return map[country] || "🌍"; }
-
-    // This helper returns a device icon that matches the backend device bucket.
-    function deviceIcon(device) { if (device === "Mobile") return "📱"; if (device === "Tablet") return "📟"; return "💻"; }
-
-    // This helper destroys all chart instances before analytics are redrawn.
-    function destroyCharts() { Object.values(state.charts).forEach((chart) => chart && chart.destroy()); state.charts = {}; }
-
-    // This helper renders the Recent Clicks section from the analytics payload.
-    function renderRecent(clicks) { els.recentList.innerHTML = ""; const recent = [...(clicks || [])].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 20); els.recentEmpty.classList.toggle("show", recent.length === 0); recent.forEach((click) => { const row = document.createElement("div"); row.className = "row"; row.innerHTML = `<div>${formatDate(click.timestamp)}</div><div>${deviceIcon(click.device)} ${escapeHtml(click.device || "Desktop")}</div><div>${countryFlag(click.country)} ${escapeHtml(click.country || "Unknown")}</div><div>${escapeHtml(click.city || "Unknown")}</div><div>${escapeHtml(click.isp || "Unknown")}</div>`; els.recentList.appendChild(row); }); }
-
-    // This helper builds the line, doughnut, and horizontal bar charts for analytics.
-    function renderCharts(analytics) {
-      destroyCharts();
-      const lineCtx = $("lineChart").getContext("2d");
-      const lineGrad = lineCtx.createLinearGradient(0, 0, 0, 280);
-      lineGrad.addColorStop(0, themeValue("--chart-line-fill-start"));
-      lineGrad.addColorStop(1, themeValue("--chart-line-fill-end"));
-      const byDate = analytics.byDate || {};
-      const labels = Object.keys(byDate).sort().slice(-14);
-      state.charts.line = new Chart(lineCtx, { type: "line", data: { labels, datasets: [{ data: labels.map((d) => byDate[d] || 0), borderColor: themeValue("--chart-line"), backgroundColor: lineGrad, fill: true, tension: .4, pointRadius: 4, pointHoverRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: themeValue("--chart-tick") }, grid: { color: themeValue("--chart-grid") } }, y: { ticks: { color: themeValue("--chart-tick"), precision: 0 }, grid: { color: themeValue("--chart-grid") } } } } });
-      const byDevice = analytics.byDevice || {};
-      state.charts.device = new Chart($("deviceChart").getContext("2d"), { type: "doughnut", data: { labels: ["Desktop", "Mobile", "Tablet"], datasets: [{ data: [byDevice.Desktop || 0, byDevice.Mobile || 0, byDevice.Tablet || 0], backgroundColor: [themeValue("--chart-device-1"), themeValue("--chart-device-2"), themeValue("--chart-device-3")], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: "68%", plugins: { legend: { position: "bottom", labels: { color: themeValue("--chart-label") } }, centerText: { text: String(analytics.totalClicks || 0) } } } });
-      const byCountry = Object.entries(analytics.byCountry || {}).sort((a, b) => b[1] - a[1]).slice(0, 5);
-      const cCtx = $("countryChart").getContext("2d");
-      const barGrad = cCtx.createLinearGradient(0, 0, 360, 0);
-      barGrad.addColorStop(0, themeValue("--chart-bar-start"));
-      barGrad.addColorStop(1, themeValue("--chart-bar-end"));
-      state.charts.country = new Chart(cCtx, { type: "bar", data: { labels: byCountry.map((entry) => entry[0]), datasets: [{ data: byCountry.map((entry) => entry[1]), backgroundColor: barGrad, borderRadius: 12 }] }, options: { indexAxis: "y", responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: themeValue("--chart-tick"), precision: 0 }, grid: { color: themeValue("--chart-grid") } }, y: { ticks: { color: themeValue("--chart-label") }, grid: { display: false } } } } });
-    }
-
-    // This helper loads analytics for a selected link and opens the analytics page.
-    async function loadAnalytics(code) { state.analyticsCode = code; setLoading(true); try { const data = await api("/analytics/" + encodeURIComponent(code), { headers: authHeaders() }); const link = state.links.find((item) => item.code === code); els.analyticsCode.textContent = data.code || "-"; els.analyticsLong.textContent = data.longUrl || "-"; els.analyticsClicks.textContent = String(data.totalClicks || 0); els.analyticsCreatedAt.textContent = data.createdAt ? new Date(data.createdAt).toLocaleDateString() : "-"; els.analyticsExpiresAt.textContent = link ? formatExpiry(link.expiresAt) : "Unknown"; renderCharts(data); renderRecent(data.clicks || []); showPage("analyticsPage"); } catch (error) { if (error.message !== "Unauthorized") toast("error", error.message); } finally { setLoading(false); } }
-
-    // This helper restores the correct initial screen when the SPA first loads.
-    async function boot() {
-      localStorage.removeItem("token");
-      localStorage.removeItem("userName");
-      applyTheme(preferredTheme(), false);
-      refreshChrome();
-      if (sessionToken()) { showPage("shortenPage"); await loadLinks(); } else { showPage("loginPage"); }
-    }
-
-    // This helper wires up every interactive element across auth, lists, and analytics.
-    function bind() {
-      $("goRegister").addEventListener("click", () => showPage("registerPage"));
-      $("goLogin").addEventListener("click", () => showPage("loginPage"));
-      $("loginBtn").addEventListener("click", login);
-      $("registerBtn").addEventListener("click", register);
-      $("logoutBtn").addEventListener("click", logout);
-      $("logoutBtnMobile").addEventListener("click", logout);
-      els.themeToggle.addEventListener("click", toggleTheme);
-      els.themeToggleMobile.addEventListener("click", toggleTheme);
-      $("burgerBtn").addEventListener("click", () => toggleDrawer());
-      $("advancedBtn").addEventListener("click", () => setAdvancedPanel(!els.advancedPanel.classList.contains("show")));
-      $("shortenBtn").addEventListener("click", shorten);
-      $("longUrl").addEventListener("input", () => { if ($("longUrl").value.trim()) setAdvancedPanel(true); });
-      $("longUrl").addEventListener("paste", () => setTimeout(() => { if ($("longUrl").value.trim()) setAdvancedPanel(true); }, 0));
-      $("searchInput").addEventListener("input", filterLinks);
-      document.querySelectorAll("[data-expiry-option]").forEach((btn) => btn.addEventListener("click", () => { state.createExpiry = btn.dataset.expiryOption; document.querySelectorAll("[data-expiry-option]").forEach((pill) => pill.classList.toggle("active", pill.dataset.expiryOption === state.createExpiry)); }));
-      document.querySelectorAll("[data-expiry-filter]").forEach((btn) => btn.addEventListener("click", () => { state.expiryFilter = btn.dataset.expiryFilter; document.querySelectorAll("[data-expiry-filter]").forEach((pill) => pill.classList.toggle("active", pill.dataset.expiryFilter === state.expiryFilter)); filterLinks(); }));
-      document.querySelectorAll("[data-expiry-sort]").forEach((btn) => btn.addEventListener("click", () => { state.expirySort = btn.dataset.expirySort; document.querySelectorAll("[data-expiry-sort]").forEach((pill) => pill.classList.toggle("active", pill.dataset.expirySort === state.expirySort)); filterLinks(); }));
-      document.querySelectorAll("[data-range]").forEach((btn) => btn.addEventListener("click", () => { state.range = btn.dataset.range; document.querySelectorAll("[data-range]").forEach((pill) => pill.classList.toggle("active", pill.dataset.range === state.range)); filterLinks(); }));
-      $("emptyCreate").addEventListener("click", () => showPage("shortenPage"));
-      $("cancelRename").addEventListener("click", closeRename);
-      $("confirmRename").addEventListener("click", renameLink);
-      $("cancelDelete").addEventListener("click", closeDelete);
-      $("confirmDelete").addEventListener("click", removeLink);
-      $("backLinks").addEventListener("click", () => showPage("linksPage"));
-      $("refreshAnalytics").addEventListener("click", () => state.analyticsCode && loadAnalytics(state.analyticsCode));
-      document.querySelectorAll(".toggle-pass").forEach((btn) => btn.addEventListener("click", () => { const input = $(btn.dataset.input); input.type = input.type === "password" ? "text" : "password"; btn.textContent = input.type === "password" ? "👁" : "🙈"; }));
-      document.querySelectorAll("[data-page]").forEach((btn) => btn.addEventListener("click", async () => { const page = btn.dataset.page; if (page === "analyticsPage") { if (state.analyticsCode) await loadAnalytics(state.analyticsCode); else toast("info", "Select a link from My Links to view analytics"); } else { showPage(page); } }));
-      els.linksList.addEventListener("click", async (event) => { const copy = event.target.closest("[data-copy]"); const rename = event.target.closest("[data-rename]"); const analytics = event.target.closest("[data-analytics]"); const del = event.target.closest("[data-delete]"); const restore = event.target.closest("[data-restore]"); if (copy) await copyText(shortPrefix() + copy.dataset.copy); if (restore) await restoreLink(restore.dataset.restore); if (rename) openRename(rename.dataset.rename); if (analytics) await loadAnalytics(analytics.dataset.analytics); if (del) openDelete(del.dataset.delete); });
-      els.linksList.addEventListener("mouseover", (event) => { const target = event.target.closest("[data-tip]"); if (!target) return; els.tooltip.textContent = target.dataset.tip; els.tooltip.classList.add("show"); });
-      els.linksList.addEventListener("mousemove", (event) => { if (!els.tooltip.classList.contains("show")) return; els.tooltip.style.left = event.pageX + 12 + "px"; els.tooltip.style.top = event.pageY - 18 + "px"; });
-      els.linksList.addEventListener("mouseleave", () => els.tooltip.classList.remove("show"));
-      window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (event) => {
-        if (localStorage.getItem(THEME_KEY)) return;
-        applyTheme(event.matches ? "dark" : "light", false);
-      });
-    }
-
-    bind();
-    boot();
-  </script>
 </body>
 </html>

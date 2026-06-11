@@ -4,7 +4,11 @@
 import hashlib
 import ipaddress
 import json
+import logging
 import os
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 import re
 import time
 from datetime import datetime, timezone
@@ -44,7 +48,7 @@ def verify_token(event):
         payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
         return payload
     except Exception as exc:
-        print(f"verify_token failed: {exc}")
+        logger.error(f"verify_token failed: {exc}")
         return None
 
 # This function returns a standard unauthorized response body.
@@ -106,7 +110,7 @@ def is_valid_long_url(long_url):
 
         return "." in hostname and not hostname.startswith(".") and not hostname.endswith(".")
     except Exception as exc:
-        print(f"is_valid_long_url failed: {exc}")
+        logger.error(f"is_valid_long_url failed: {exc}")
         return False
 
 
@@ -146,7 +150,7 @@ def is_existing_short_url(event, long_url):
             return normalized_path.startswith(f"/{stage}/s/")
         return normalized_path.startswith("/s/")
     except Exception as exc:
-        print(f"is_existing_short_url failed: {exc}")
+        logger.error(f"is_existing_short_url failed: {exc}")
         return False
 
 # This function formats the link record into the response sent to the frontend.
@@ -227,7 +231,6 @@ def resolve_generated_code(long_url, user_id):
 
 # This function validates the request and saves a new short link.
 def lambda_handler(event, context):
-    print(f"shorten_handler event: {json.dumps(event)}")
     try:
         # This condition returns early for browser preflight requests.
         if event.get("httpMethod") == "OPTIONS":
@@ -343,8 +346,8 @@ def lambda_handler(event, context):
     except json.JSONDecodeError:
         return response(400, {"error": "Invalid JSON body"})
     except ValueError as exc:
-        print(f"shorten_handler validation error: {exc}")
+        logger.error(f"shorten_handler validation error: {exc}")
         return response(400, {"error": str(exc)})
     except Exception as exc:
-        print(f"shorten_handler error: {exc}")
+        logger.error(f"shorten_handler error: {exc}")
         return response(500, {"error": "Failed to shorten URL"})

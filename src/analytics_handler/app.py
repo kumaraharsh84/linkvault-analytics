@@ -2,8 +2,12 @@
 # It checks ownership, reads click rows, and builds chart-friendly summaries.
 # It also keeps the responses safe for browser access with CORS headers.
 import json
+import logging
 import os
 from collections import Counter
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 from decimal import Decimal
 
 import boto3
@@ -35,7 +39,7 @@ def verify_token(event):
         payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
         return payload
     except Exception as exc:
-        print(f"verify_token failed: {exc}")
+        logger.error(f"verify_token failed: {exc}")
         return None
 
 # This function returns a standard unauthorized response body.
@@ -80,7 +84,6 @@ def query_all_clicks(code):
 
 # This function validates ownership and returns analytics for one link.
 def lambda_handler(event, context):
-    print(f"analytics_handler event: {json.dumps(event)}")
     try:
         # This condition returns early for browser preflight requests.
         if event.get("httpMethod") == "OPTIONS":
@@ -106,7 +109,7 @@ def lambda_handler(event, context):
             return response(403, {"error": "You do not own this link"})
 
         clicks = sorted(query_all_clicks(code), key=lambda click: click.get("timestamp", ""), reverse=True)
-        print(f"Found {len(clicks)} clicks for code {code}")
+        logger.info(f"Found {len(clicks)} clicks for code {code}")
         # Pre-aggregate analytics server-side so the frontend can render charts directly.
         by_device = Counter(click.get("device", "Unknown") for click in clicks)
         by_country = Counter(click.get("country", "Unknown") for click in clicks)
@@ -126,5 +129,5 @@ def lambda_handler(event, context):
             },
         )
     except Exception as exc:
-        print(f"analytics_handler error: {exc}")
+        logger.error(f"analytics_handler error: {exc}")
         return response(500, {"error": "Failed to load analytics"})
