@@ -18,7 +18,7 @@ export default function Dashboard({ token }) {
       });
       const data = await res.json();
       if (res.ok) {
-        setLinks(data.links || []);
+        setLinks(Array.isArray(data) ? data : (data.links || []));
       }
     } catch (err) {
       console.error(err);
