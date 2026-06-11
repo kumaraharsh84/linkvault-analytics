@@ -112,7 +112,10 @@ def lambda_handler(event, context):
         logger.info(f"Found {len(clicks)} clicks for code {code}")
         # Pre-aggregate analytics server-side so the frontend can render charts directly.
         by_device = Counter(click.get("device", "Unknown") for click in clicks)
+        by_browser = Counter(click.get("browser", "Unknown") for click in clicks)
+        by_os = Counter(click.get("os", "Unknown") for click in clicks)
         by_country = Counter(click.get("country", "Unknown") for click in clicks)
+        by_referrer = Counter(click.get("referrer", "Direct") for click in clicks)
         by_date = Counter(click.get("timestamp", "")[:10] for click in clicks if click.get("timestamp"))
 
         return response(
@@ -124,7 +127,10 @@ def lambda_handler(event, context):
                 "totalClicks": item.get("clickCount", len(clicks)),
                 "clicks": clicks,
                 "byDevice": dict(by_device),
+                "byBrowser": dict(by_browser),
+                "byOs": dict(by_os),
                 "byCountry": dict(by_country),
+                "byReferrer": dict(by_referrer),
                 "byDate": dict(sorted(by_date.items())),
             },
         )

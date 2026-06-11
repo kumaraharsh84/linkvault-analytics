@@ -63,15 +63,27 @@ def response(status_code, body):
         "body": json.dumps(body),
     }
 
-# This function detects the device type from the user agent string.
-def detect_device(user_agent):
-    # This condition marks tablets before checking for mobile devices.
-    if "Tablet" in user_agent:
-        return "Tablet"
-    # This condition marks mobile devices from the user agent.
-    if "Mobile" in user_agent:
-        return "Mobile"
-    return "Desktop"
+from user_agents import parse
+
+# This function detects the device, browser, and os from the user agent string.
+def parse_user_agent_details(user_agent_string):
+    if user_agent_string == "Unknown":
+        return {"device": "Unknown", "browser": "Unknown", "os": "Unknown"}
+    
+    ua = parse(user_agent_string)
+    device = "Desktop"
+    if ua.is_tablet:
+        device = "Tablet"
+    elif ua.is_mobile:
+        device = "Mobile"
+    elif ua.is_bot:
+        device = "Bot"
+        
+    return {
+        "device": device,
+        "browser": ua.browser.family,
+        "os": ua.os.family
+    }
 
 
 # This function converts Python values into DynamoDB transaction values.
@@ -133,6 +145,8 @@ def lambda_handler(event, context):
         http_context = request_context.get("http") or {}
 
         user_agent = headers.get("User-Agent") or headers.get("user-agent") or "Unknown"
+        referrer = headers.get("Referer") or headers.get("referer") or "Direct"
+        
         ip_address = (
             identity.get("sourceIp")
             or http_context.get("sourceIp")
@@ -140,7 +154,11 @@ def lambda_handler(event, context):
             or "Unknown"
         )
         timestamp = datetime.now(timezone.utc).isoformat()
-        device = detect_device(user_agent)
+        
+        ua_details = parse_user_agent_details(user_agent)
+        device = ua_details["device"]
+        browser = ua_details["browser"]
+        os_name = ua_details["os"]
 
         # This external API call is optional so redirect still works if geo lookup fails.
         geo = geo_lookup(ip_address)
@@ -150,8 +168,11 @@ def lambda_handler(event, context):
             "code": code,
             "timestamp": timestamp,
             "userAgent": user_agent,
+            "referrer": referrer,
             "ip": ip_address,
             "device": device,
+            "browser": browser,
+            "os": os_name,
             "country": geo["country"],
             "city": geo["city"],
             "region": geo["regionName"],

@@ -31,4 +31,4 @@ jobs:
     - name: Setup AWS SAM
       uses: aws-actions/setup-sam@v2
     - name: Validate SAM template
-      run: sam validate --template-file template.yaml
+      run: sam validate --template-file template.yaml --region us-east-1
