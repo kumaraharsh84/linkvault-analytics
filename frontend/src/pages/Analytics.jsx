@@ -82,7 +82,7 @@ export default function Analytics({ token }) {
         <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--muted)', marginBottom: '1rem', textDecoration: 'none', fontWeight: '500' }}>
           <ArrowLeft size={16} /> Back to Dashboard
         </Link>
-        <div className="glass-panel" style={{ padding: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+        <div className="card-clean" style={{ padding: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <h1 style={{ marginBottom: '0.5rem', fontSize: '1.8rem' }}>Analytics for /{code}</h1>
             <a href={`${CONFIG.apiBase}/${code}`} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontWeight: '500', color: 'var(--accent)', textDecoration: 'none' }}>
@@ -98,7 +98,7 @@ export default function Analytics({ token }) {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '1.5rem' }}>
         
-        <div className="glass-panel" style={{ padding: '1.5rem' }}>
+        <div className="card-clean" style={{ padding: '1.5rem' }}>
           <h3 style={{ marginBottom: '1rem' }}>Clicks Over Time</h3>
           <div style={{ height: '250px' }}>
             <Line 
@@ -118,7 +118,7 @@ export default function Analytics({ token }) {
           </div>
         </div>
 
-        <div className="glass-panel" style={{ padding: '1.5rem' }}>
+        <div className="card-clean" style={{ padding: '1.5rem' }}>
           <h3 style={{ marginBottom: '1rem' }}>Traffic Sources (Referrer)</h3>
           <div style={{ height: '250px' }}>
             <Bar 
@@ -128,7 +128,7 @@ export default function Analytics({ token }) {
           </div>
         </div>
 
-        <div className="glass-panel" style={{ padding: '1.5rem' }}>
+        <div className="card-clean" style={{ padding: '1.5rem' }}>
           <h3 style={{ marginBottom: '1rem' }}>Browsers</h3>
           <div style={{ height: '250px', display: 'flex', justifyContent: 'center' }}>
             <Doughnut 
@@ -138,7 +138,7 @@ export default function Analytics({ token }) {
           </div>
         </div>
 
-        <div className="glass-panel" style={{ padding: '1.5rem' }}>
+        <div className="card-clean" style={{ padding: '1.5rem' }}>
           <h3 style={{ marginBottom: '1rem' }}>Operating Systems</h3>
           <div style={{ height: '250px', display: 'flex', justifyContent: 'center' }}>
             <Doughnut 
@@ -148,7 +148,7 @@ export default function Analytics({ token }) {
           </div>
         </div>
 
-        <div className="glass-panel" style={{ padding: '1.5rem' }}>
+        <div className="card-clean" style={{ padding: '1.5rem' }}>
           <h3 style={{ marginBottom: '1rem' }}>Devices</h3>
           <div style={{ height: '250px', display: 'flex', justifyContent: 'center' }}>
             <Doughnut 
@@ -158,7 +158,7 @@ export default function Analytics({ token }) {
           </div>
         </div>
 
-        <div className="glass-panel" style={{ padding: '1.5rem' }}>
+        <div className="card-clean" style={{ padding: '1.5rem' }}>
           <h3 style={{ marginBottom: '1rem' }}>Locations (Country)</h3>
           <div style={{ height: '250px' }}>
             <Bar 

@@ -59,19 +59,19 @@ export default function Shorten({ token }) {
   };
 
   return (
-    <div>
-      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-        <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem', color: 'var(--accent)' }}>Shorten & Track</h1>
-        <p style={{ color: 'var(--muted)', fontSize: '1.2rem' }}>Create powerful short links with built-in analytics.</p>
+    <div className="page-container">
+      <div className="page-header" style={{ textAlign: 'center' }}>
+        <h1 style={{ fontSize: '2.5rem', letterSpacing: '-0.04em' }}>Shorten & Track</h1>
+        <p>Create powerful short links with built-in analytics.</p>
       </div>
 
-      <div className="glass-panel" style={{ padding: '3rem', marginBottom: '3rem', maxWidth: '800px', margin: '0 auto 3rem auto' }}>
-        {error && <div style={{ color: 'white', backgroundColor: 'var(--danger)', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem' }}>{error}</div>}
-        {successMsg && <div style={{ color: 'white', backgroundColor: 'var(--accent)', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem' }}>{successMsg}</div>}
+      <div className="card-clean" style={{ marginBottom: '40px' }}>
+        {error && <div style={{ color: 'white', backgroundColor: 'var(--danger)', padding: '12px 16px', borderRadius: '6px', marginBottom: '20px', fontSize: '0.9rem', fontWeight: 500 }}>{error}</div>}
+        {successMsg && <div style={{ color: 'var(--bg)', backgroundColor: 'var(--text)', padding: '12px 16px', borderRadius: '6px', marginBottom: '20px', fontSize: '0.9rem', fontWeight: 500 }}>{successMsg}</div>}
         
-        <form onSubmit={handleShorten} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <form onSubmit={handleShorten} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '1rem', fontWeight: '500' }}>Destination URL</label>
+            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '500' }}>Destination URL</label>
             <input 
               type="url" 
               className="input-field" 
@@ -79,13 +79,13 @@ export default function Shorten({ token }) {
               value={longUrl}
               onChange={e => setLongUrl(e.target.value)}
               required
-              style={{ fontSize: '1.1rem', padding: '1rem' }}
+              style={{ fontSize: '1rem', padding: '12px' }}
             />
           </div>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: '500' }}>Custom Code (Optional)</label>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '500' }}>Custom Code (Optional)</label>
               <input 
                 type="text" 
                 className="input-field" 
@@ -95,7 +95,7 @@ export default function Shorten({ token }) {
               />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: '500' }}>Saved Title (Optional)</label>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '500' }}>Saved Title (Optional)</label>
               <input 
                 type="text" 
                 className="input-field" 
@@ -106,20 +106,20 @@ export default function Shorten({ token }) {
             </div>
           </div>
           
-          <button type="submit" className="btn-primary" disabled={loading} style={{ padding: '1rem', fontSize: '1.1rem', marginTop: '1rem' }}>
+          <button type="submit" className="btn-primary" disabled={loading} style={{ padding: '12px', fontSize: '1rem', marginTop: '8px' }}>
             {loading ? 'Shortening...' : 'Shorten Link'}
           </button>
         </form>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem', maxWidth: '800px', margin: '0 auto' }}>
-        <div className="glass-panel" style={{ padding: '2rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '2.5rem', fontWeight: '800', color: 'var(--text)' }}>{stats.totalLinks}</div>
-          <div style={{ color: 'var(--muted)', marginTop: '0.5rem' }}>Total Links Created</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px' }}>
+        <div className="card-clean" style={{ textAlign: 'center', padding: '32px' }}>
+          <div style={{ fontSize: '3rem', fontWeight: '700', letterSpacing: '-0.05em', lineHeight: 1 }}>{stats.totalLinks}</div>
+          <div style={{ color: 'var(--muted)', marginTop: '8px', fontSize: '0.9rem', fontWeight: 500 }}>Total Links Created</div>
         </div>
-        <div className="glass-panel" style={{ padding: '2rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '2.5rem', fontWeight: '800', color: 'var(--text)' }}>{stats.totalClicks}</div>
-          <div style={{ color: 'var(--muted)', marginTop: '0.5rem' }}>Total Clicks</div>
+        <div className="card-clean" style={{ textAlign: 'center', padding: '32px' }}>
+          <div style={{ fontSize: '3rem', fontWeight: '700', letterSpacing: '-0.05em', lineHeight: 1 }}>{stats.totalClicks}</div>
+          <div style={{ color: 'var(--muted)', marginTop: '8px', fontSize: '0.9rem', fontWeight: 500 }}>Total Clicks</div>
         </div>
       </div>
     </div>

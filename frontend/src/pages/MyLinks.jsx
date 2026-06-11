@@ -66,69 +66,67 @@ export default function MyLinks({ token }) {
   });
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+    <div className="page-container">
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '16px' }}>
         <div>
-          <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>My Links</h1>
-          <p style={{ color: 'var(--muted)' }}>Browse saved links, filter, and jump back into anything you need.</p>
+          <h1>My Links</h1>
+          <p>Browse saved links, search, and jump back into anything you need.</p>
         </div>
         <div style={{ position: 'relative', width: '300px', maxWidth: '100%' }}>
-          <Search size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
+          <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
           <input 
             type="text" 
             className="input-field" 
             placeholder="Search links..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ paddingLeft: '2.5rem' }}
+            style={{ paddingLeft: '36px' }}
           />
         </div>
       </div>
 
-      <div style={{ display: 'grid', gap: '1rem' }}>
+      <div className="card-clean" style={{ padding: 0, overflow: 'hidden' }}>
         {filteredLinks.map(link => (
-          <div key={link.code} className="glass-panel" style={{ padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-            <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', flex: 1, minWidth: '300px' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center' }}>
-                <QRCodeSVG id={`qr-${link.code}`} value={`${CONFIG.apiBase}/${link.code}`} size={64} fgColor="var(--text)" bgColor="transparent" />
-                <button onClick={() => handleDownloadQR(link.code)} className="btn-secondary" style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
-                  <Download size={12} /> QR
+          <div key={link.code} className="link-item">
+            <div className="link-item-left">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center', width: '64px' }}>
+                <QRCodeSVG id={`qr-${link.code}`} value={`${CONFIG.apiBase}/${link.code}`} size={56} fgColor="var(--text)" bgColor="transparent" />
+                <button onClick={() => handleDownloadQR(link.code)} className="btn-secondary" style={{ padding: '2px 6px', fontSize: '0.7rem' }}>
+                  <Download size={10} style={{ marginRight: '4px' }} /> QR
                 </button>
               </div>
-              <div style={{ overflow: 'hidden' }}>
-                <h3 style={{ marginBottom: '0.25rem', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  {link.title && <span style={{ fontWeight: '600' }}>{link.title}</span>}
-                  {link.title && <span style={{ color: 'var(--border)' }}>|</span>}
-                  <a href={`${CONFIG.apiBase}/${link.code}`} target="_blank" rel="noreferrer" style={{ fontWeight: link.title ? '400' : '600', textDecoration: 'none', color: 'var(--accent)' }}>
-                    {CONFIG.apiBase.split('//')[1]}/{link.code}
-                  </a>
-                </h3>
-                <p style={{ color: 'var(--muted)', fontSize: '0.9rem', maxWidth: '500px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <div className="link-item-details">
+                <div className="link-item-title">
+                  {link.title ? link.title : 'Untitled Link'}
+                </div>
+                <a href={`${CONFIG.apiBase}/${link.code}`} target="_blank" rel="noreferrer" className="link-item-short">
+                  {CONFIG.apiBase.split('//')[1]}/{link.code}
+                </a>
+                <div className="link-item-long" title={link.longUrl}>
                   {link.longUrl}
-                </p>
-                <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem', fontSize: '0.85rem', color: 'var(--muted)' }}>
-                  <span style={{ fontWeight: 600, color: 'var(--text)' }}>{link.clickCount || 0} clicks</span>
-                  <span>Created {new Date(link.createdAt).toLocaleDateString()}</span>
+                </div>
+                <div className="link-item-meta">
+                  <span className="badge">{link.clickCount || 0} clicks</span>
+                  <span>{new Date(link.createdAt).toLocaleDateString()}</span>
                 </div>
               </div>
             </div>
             
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <Link to={`/analytics/${link.code}`} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
-                <BarChart2 size={16} /> Analytics
+            <div className="link-item-actions">
+              <Link to={`/analytics/${link.code}`} className="btn-secondary">
+                <BarChart2 size={14} style={{ marginRight: '6px' }} /> Analytics
               </Link>
-              <button onClick={() => handleDelete(link.code)} className="btn-secondary" style={{ color: 'var(--danger)' }}>
-                <Trash2 size={16} />
+              <button onClick={() => handleDelete(link.code)} className="btn-secondary" style={{ color: 'var(--danger)', borderColor: 'transparent' }} title="Delete">
+                <Trash2 size={14} />
               </button>
             </div>
           </div>
         ))}
         {filteredLinks.length === 0 && (
-          <div className="glass-panel" style={{ padding: '4rem', textAlign: 'center' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔗</div>
-            <h3 style={{ marginBottom: '0.5rem' }}>No links found</h3>
-            <p style={{ color: 'var(--muted)' }}>{searchTerm ? 'Try adjusting your search term.' : 'Create your first short link from the Shorten tab to get started.'}</p>
-            {!searchTerm && <Link to="/" className="btn-primary" style={{ display: 'inline-block', marginTop: '1.5rem', textDecoration: 'none' }}>Go to Shorten</Link>}
+          <div style={{ padding: '60px 20px', textAlign: 'center' }}>
+            <h3 style={{ marginBottom: '8px' }}>No links found</h3>
+            <p style={{ color: 'var(--muted)', marginBottom: '24px' }}>{searchTerm ? 'Try adjusting your search term.' : 'Create your first short link from the Shorten tab.'}</p>
+            {!searchTerm && <Link to="/" className="btn-primary">Go to Shorten</Link>}
           </div>
         )}
       </div>

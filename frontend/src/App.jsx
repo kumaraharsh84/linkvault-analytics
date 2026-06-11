@@ -29,55 +29,52 @@ function App() {
 
   const location = useLocation();
 
-  const getNavStyle = (path) => ({
-    color: location.pathname === path || (path === '/analytics' && location.pathname.startsWith('/analytics')) ? 'var(--accent)' : 'var(--text)',
-    textDecoration: 'none',
-    fontWeight: 600,
-    padding: '0.5rem 1rem',
-    borderRadius: '8px',
-    backgroundColor: location.pathname === path || (path === '/analytics' && location.pathname.startsWith('/analytics')) ? 'var(--accent-soft)' : 'transparent',
-    transition: 'all 0.2s'
-  });
+  const getNavStyle = (path) => {
+    const isActive = location.pathname === path || (path === '/analytics' && location.pathname.startsWith('/analytics'));
+    return isActive ? 'nav-link active' : 'nav-link';
+  };
 
   return (
     <div className="app-container">
-      <nav style={{ padding: '1rem 2rem', borderBottom: '1px solid var(--border)', backgroundColor: 'var(--card)', backdropFilter: 'blur(12px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-          <div style={{ fontWeight: '800', fontSize: '1.5rem', color: 'var(--text)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{ fontSize: '1.8rem' }}>🔗</span> LinkVault
+      <nav className="navbar">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+          <div className="nav-brand">
+            <div className="nav-brand-logo">L</div> LinkVault
           </div>
           
           {token && (
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <Link to="/" style={getNavStyle('/')}>Shorten</Link>
-              <Link to="/links" style={getNavStyle('/links')}>My Links</Link>
-              <Link to="/analytics" style={getNavStyle('/analytics')}>Analytics</Link>
+            <div className="nav-links">
+              <Link to="/" className={getNavStyle('/')}>Shorten</Link>
+              <Link to="/links" className={getNavStyle('/links')}>My Links</Link>
+              <Link to="/analytics" className={getNavStyle('/analytics')}>Analytics</Link>
             </div>
           )}
         </div>
 
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <button onClick={toggleTheme} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.5rem', borderRadius: '50%' }}>
-            {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+          <button onClick={toggleTheme} className="btn-secondary" style={{ padding: '6px' }} title="Toggle Theme">
+            {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
           </button>
           {token && (
-            <button onClick={handleLogout} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <button onClick={handleLogout} className="btn-secondary">
               Sign Out
             </button>
           )}
         </div>
       </nav>
 
-      <main style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
+      <main>
         <Routes>
           <Route path="/login" element={!token ? <Login setToken={setToken} /> : <Navigate to="/" />} />
           <Route path="/" element={token ? <Shorten token={token} /> : <Navigate to="/login" />} />
           <Route path="/links" element={token ? <MyLinks token={token} /> : <Navigate to="/login" />} />
           <Route path="/analytics" element={token ? (
-            <div className="glass-panel" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
-              <h2 style={{ marginBottom: '1rem' }}>Analytics Dashboard</h2>
-              <p style={{ color: 'var(--muted)', fontSize: '1.1rem' }}>Please select a specific link from your My Links tab to view its detailed analytics.</p>
-              <Link to="/links" className="btn-primary" style={{ display: 'inline-block', marginTop: '1.5rem', textDecoration: 'none' }}>Go to My Links</Link>
+            <div className="page-container">
+              <div className="card-clean" style={{ textAlign: 'center', padding: '60px 20px' }}>
+                <h2 style={{ marginBottom: '12px' }}>Analytics Overview</h2>
+                <p style={{ color: 'var(--muted)', marginBottom: '24px' }}>Please select a specific link from your My Links tab to view its detailed analytics.</p>
+                <Link to="/links" className="btn-primary">View My Links</Link>
+              </div>
             </div>
           ) : <Navigate to="/login" />} />
           <Route path="/analytics/:code" element={token ? <Analytics token={token} /> : <Navigate to="/login" />} />
