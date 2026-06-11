@@ -1,16 +1,48 @@
-# React + Vite
+# LinkVault Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is the React frontend for LinkVault, an advanced serverless URL shortener.
+It was built using **Vite**, **React**, and styled with a clean, modern SaaS aesthetic.
 
-Currently, two official plugins are available:
+## Features
+- **Dashboard:** Create shortened URLs and view global statistics.
+- **My Links:** Search, filter, manage, and download QR codes for all your generated short links.
+- **Analytics:** View detailed metrics (Country, OS, Browser, Clicks over time) visualized with `react-chartjs-2`.
+- **Authentication:** Secure login and registration flows communicating directly with AWS API Gateway.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Environment Setup
 
-## React Compiler
+The frontend expects an API endpoint to communicate with the AWS Serverless backend.
+In the `src/config.js` file, ensure `API_BASE` points to your active environment.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```javascript
+// src/config.js
+export const CONFIG = {
+  apiBase: 'https://<your-api-id>.execute-api.ap-south-1.amazonaws.com/Prod'
+};
+```
 
-## Expanding the ESLint configuration
+## Available Scripts
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+In the project directory, you can run:
+
+### `npm install`
+Installs all dependencies.
+
+### `npm run dev`
+Runs the app in development mode using Vite.
+Open [http://localhost:5173](http://localhost:5173) to view it in the browser.
+
+The page will reload if you make edits.
+You will also see any lint errors in the console.
+
+### `npm run build`
+Builds the app for production to the `dist` folder.
+It correctly bundles React in production mode and optimizes the build for the best performance.
+
+## Deployment (Vercel)
+
+This frontend is designed to be easily deployed on [Vercel](https://vercel.com).
+1. Add your GitHub repository to Vercel.
+2. Set the **Root Directory** to `frontend`.
+3. Vercel will automatically detect the Vite framework and configure the build settings.
+4. Click Deploy!

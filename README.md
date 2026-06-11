@@ -12,7 +12,7 @@
 
 ## What is LinkVault?
 
-LinkVault is a fully serverless URL shortener where users can shorten links, track every click with geo and device data, and manage their personal link collection from a single-page frontend.
+LinkVault is a fully serverless URL shortener where users can shorten links, track every click with geo and device data, and manage their personal link collection from a modern, responsive React single-page application.
 
 Unlike basic URL shorteners, LinkVault treats every link as a managed asset: it can have a saved title, an expiry window, and a 7-day restore grace period after expiry. Every redirect is tracked with country, city, device, and ISP data from a geo enrichment call.
 
@@ -24,7 +24,7 @@ Unlike basic URL shorteners, LinkVault treats every link as a managed asset: it 
 
 ```text
                    +--------------------------------------+
-                   |          frontend/index.html         |
+                   |         React Frontend (Vite)        |
                    | Login / Register / Shorten / Links   |
                    | Analytics / Restore / Search / UI    |
                    +------------------+-------------------+
@@ -62,7 +62,7 @@ Unlike basic URL shorteners, LinkVault treats every link as a managed asset: it 
                                           +----------------------+
 ```
 
-**5 Lambda functions - 3 DynamoDB tables - 9 API routes - 1 HTML frontend**
+**5 Lambda functions - 3 DynamoDB tables - 9 API routes - 1 React frontend**
 
 ---
 
@@ -72,7 +72,7 @@ Unlike basic URL shorteners, LinkVault treats every link as a managed asset: it 
 - Register and login with email and password
 - Passwords hashed with `bcrypt` before storage
 - JWT tokens with 24-hour expiry issued on login
-- Token stored in `sessionStorage` so closing the browser logs the user out automatically
+- Token stored in browser storage so the session is securely managed
 - Atomic email reservation using DynamoDB transactions to prevent duplicate accounts on concurrent signups
 
 ### URL Shortening
@@ -177,7 +177,7 @@ All protected routes require: `Authorization: Bearer <token>`
 | AWS CLI | Configured with deployment credentials |
 | AWS SAM CLI | Required for build and deploy |
 | Python 3.11 | Lambda runtime |
-| Browser | To open the frontend |
+| Node.js & npm | To run the React frontend |
 
 ### Deploy
 
@@ -190,7 +190,7 @@ sam deploy --guided
 # Set JwtSecret when prompted
 
 # 3. Copy the ApiBaseUrl from SAM output
-# Paste it into the API_BASE constant at the top of frontend/index.html
+# Paste it into frontend/src/config.js as API_BASE
 ```
 
 ### Run Lambdas Locally
@@ -203,11 +203,15 @@ sam local start-api --port 3001
 ### Run Frontend Locally
 
 ```bash
-# In another terminal, point the frontend at localhost
-# (change API_BASE in frontend/index.html to http://localhost:3001)
+# In another terminal, navigate to the frontend directory
 cd frontend
-python -m http.server 5500
-# Open http://localhost:5500/index.html
+
+# Install dependencies (only needed once)
+npm install
+
+# Start the Vite development server
+npm run dev
+# Open http://localhost:5173
 ```
 
 ### Run sam local invoke examples
@@ -255,32 +259,7 @@ sam local invoke AuthFunction -e events/auth-login.json
 
 ---
 
-## Screenshots
 
-### Login Page
-Clean authentication screen for users to securely log in and access the LinkVault dashboard.
-
-![Login Page](screenshots/login.png)
-
-### Register Page
-New users can create an account with name, email, and password to start managing shortened links and analytics.
-
-![Register Page](screenshots/register.png)
-
-### Dashboard Page
-The main dashboard lets users shorten new URLs, access advanced options, and view high-level metrics like total links, total clicks, and the most clicked short code.
-
-![Dashboard Page](screenshots/dashboard.png)
-
-### My Links Page
-Users can browse all saved short links, search and filter them, check click counts and expiry status, and perform actions like rename, analytics view, restore, or delete.
-
-![My Links Page](screenshots/my-links.png)
-
-### Analytics Details Page
-This view highlights device distribution, top countries, and recent click activity with location and ISP data, giving users a complete picture of link performance.
-
-![Analytics Details Page](screenshots/analytics-details.png)
 
 ---
 
@@ -295,7 +274,9 @@ url-shortener-analytics/
 |   |-- links_handler/      # Link management Lambda
 |   `-- analytics_handler/  # Click analytics Lambda
 |-- frontend/
-|   `-- index.html          # Single-file frontend (HTML + CSS + JS)
+|   |-- src/                # React source code (components, pages, etc.)
+|   |-- package.json        # Frontend dependencies
+|   `-- vite.config.js      # Vite configuration
 |-- template.yaml           # AWS SAM infrastructure definition
 `-- README.md
 ```
