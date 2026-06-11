@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useNavigate, Link, useLocation } from 'react-router-dom';
 import { CONFIG } from './config';
 import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
+import Shorten from './pages/Shorten';
+import MyLinks from './pages/MyLinks';
 import Analytics from './pages/Analytics';
 import { Moon, Sun } from 'lucide-react';
 
@@ -48,7 +49,8 @@ function App() {
           
           {token && (
             <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <Link to="/" style={getNavStyle('/')}>Dashboard</Link>
+              <Link to="/" style={getNavStyle('/')}>Shorten</Link>
+              <Link to="/links" style={getNavStyle('/links')}>My Links</Link>
               <Link to="/analytics" style={getNavStyle('/analytics')}>Analytics</Link>
             </div>
           )}
@@ -69,12 +71,13 @@ function App() {
       <main style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
         <Routes>
           <Route path="/login" element={!token ? <Login setToken={setToken} /> : <Navigate to="/" />} />
-          <Route path="/" element={token ? <Dashboard token={token} /> : <Navigate to="/login" />} />
+          <Route path="/" element={token ? <Shorten token={token} /> : <Navigate to="/login" />} />
+          <Route path="/links" element={token ? <MyLinks token={token} /> : <Navigate to="/login" />} />
           <Route path="/analytics" element={token ? (
             <div className="glass-panel" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
               <h2 style={{ marginBottom: '1rem' }}>Analytics Dashboard</h2>
-              <p style={{ color: 'var(--muted)', fontSize: '1.1rem' }}>Please select a specific link from your Dashboard to view its detailed analytics.</p>
-              <Link to="/" className="btn-primary" style={{ display: 'inline-block', marginTop: '1.5rem' }}>Go to Dashboard</Link>
+              <p style={{ color: 'var(--muted)', fontSize: '1.1rem' }}>Please select a specific link from your My Links tab to view its detailed analytics.</p>
+              <Link to="/links" className="btn-primary" style={{ display: 'inline-block', marginTop: '1.5rem', textDecoration: 'none' }}>Go to My Links</Link>
             </div>
           ) : <Navigate to="/login" />} />
           <Route path="/analytics/:code" element={token ? <Analytics token={token} /> : <Navigate to="/login" />} />
