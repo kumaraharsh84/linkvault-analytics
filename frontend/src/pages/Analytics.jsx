@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { CONFIG } from '../config';
 import { ArrowLeft, ExternalLink } from 'lucide-react';

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { CONFIG } from '../config';
@@ -11,7 +11,7 @@ export default function Dashboard({ token }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const fetchLinks = async () => {
+  const fetchLinks = useCallback(async () => {
     try {
       const res = await fetch(`${CONFIG.apiBase}/links`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -23,11 +23,12 @@ export default function Dashboard({ token }) {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchLinks();
-  }, []);
+  }, [fetchLinks]);
 
   const handleShorten = async (e) => {
     e.preventDefault();

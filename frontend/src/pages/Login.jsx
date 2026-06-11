@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { CONFIG } from '../config';
 
 export default function Login({ setToken }) {
